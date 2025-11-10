@@ -1,0 +1,25 @@
+{
+  "name": "com.kott.configs",
+  "displayName": "Kott Configs",
+  "unity": "6000.0",
+  "keywords": [
+    "config"
+  ],
+  "version": "1.0.0",
+  "description": "Flexible and editor friendly config system.",
+  "author": {
+    "name": "Paul Kloetzing",
+    "email": "kloetzing.paul@gmail.com"
+  },
+  "contributors": [
+    "Paul Kloetzing"
+  ],
+  "licensesUrl": "",
+  "changelogUrl": "",
+  "documentationUrl": "",
+  "dependencies": {
+    "com.kott.scopes" : "1.0.0",
+    "com.unity.remote-config" : "4.2.2",
+    "com.unity.services.deployment": "1.6.2"
+  }
+}

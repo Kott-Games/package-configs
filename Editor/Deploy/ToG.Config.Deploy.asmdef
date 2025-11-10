@@ -1,0 +1,31 @@
+{
+    "name": "Kott.Configs.Deploy",
+    "rootNamespace": "Kott.Configs.Deploy",
+    "references": [
+        "GUID:0b0cac33281734fd7af5a448fd9969ba",
+        "GUID:3e87d69835e5b460e8b407530adf9fe0",
+        "GUID:92ca58cb8e483fd4e8b09ec3047180ba",
+        "GUID:70ea675efa2644cef98c7ece24158333",
+        "GUID:9e6ed7d51349b45518022aa545ab7e0b",
+        "GUID:93dfd405b987c45479315eb420601044",
+        "GUID:b399f3936cd60e94780582a1435bc341",
+        "GUID:826bd8a513abe1544ae9419804a9d7b7"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "Select...",
+            "expression": "",
+            "define": ""
+        }
+    ],
+    "noEngineReferences": false
+}
