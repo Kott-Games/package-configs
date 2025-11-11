@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using ToG.Config.Attributes;
+using Kott.Configs.Attributes;
 using UnityEditor;
 using UnityEngine;
 
-namespace ToG.Config
+namespace Kott.Configs
 {
     public class ConfigEditorUtility
     {

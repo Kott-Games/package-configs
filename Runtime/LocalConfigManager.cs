@@ -1,12 +1,12 @@
+using Kott.Utilities.Progress;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using ToG.Scopes;
 using UnityEngine;
 
-namespace ToG.Config
+namespace Kott.Configs
 {
-    [CreateAssetMenu(fileName = "ConfigManager_Local", menuName = "Manager/Config Manager/Local")]
+    [CreateAssetMenu(fileName = "ConfigManager_Local", menuName = "Manager/Config Manager (Local)", order = 9002)]
     public class LocalConfigManager : ConfigManager
     {
         [SerializeField] private ConfigStructure _container;
@@ -14,18 +14,18 @@ namespace ToG.Config
         private Dictionary<Type, IList> _templateCollections;
         private Dictionary<string, ITemplate> _templateLookup;
 
-        public override IEnumerator InitializeAsync(IProgress<ScopeProgress> progress)
+        public override IEnumerator InitializeAsync(IProgress<ProgressReport> progress)
         {
-            yield return InitializeLocal(progress);
             yield return base.InitializeAsync(progress);
+            yield return InitializeLocal(progress);
         }
 
-        private IEnumerator InitializeLocal(IProgress<ScopeProgress> progress)
+        private IEnumerator InitializeLocal(IProgress<ProgressReport> progress)
         {
             _templateCollections = new();
             _templateLookup = new();
 
-            progress.Report(new ScopeProgress(0f, "Collect templates"));
+            progress.Report(new(0f, "Collect templates"));
             for (int i = 0; i < _container.Groups.Count; i++)
             {
                 var group = _container.Groups[i];
@@ -33,7 +33,7 @@ namespace ToG.Config
                 Array array = Array.CreateInstance(type, group.MatchingTemplates.Count);
                 _templateCollections.Add(type, array);
 
-                progress.Report(new ScopeProgress(
+                progress.Report(new(
                     (float)i / _container.Groups.Count * 0.9f,
                     $"Collect templates\n{type.FullName}"));
                 yield return null;

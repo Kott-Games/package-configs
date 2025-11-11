@@ -1,14 +1,14 @@
+using Kott.Configs.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using ToG.Config.Attributes;
 using UnityEditor;
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEngine;
 
-namespace ToG.Config
+namespace Kott.Configs
 {
     public static class ConfigStructureUtility
     {

@@ -4,7 +4,7 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace ToG.Config
+namespace Kott.Configs
 {
     public static class RCJsonAPI
     {

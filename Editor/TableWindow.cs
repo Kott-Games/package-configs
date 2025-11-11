@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ToG.Utility;
+using Kott.Utilities;
 using UnityEditor;
 using UnityEngine;
 
-namespace ToG.Config
+namespace Kott.Configs
 {
     public class TableWindow : EditorWindow
     {

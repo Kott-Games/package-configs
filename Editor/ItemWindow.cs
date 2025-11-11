@@ -1,8 +1,8 @@
-﻿using ToG.Utility;
+﻿using Kott.Utilities;
 using UnityEditor;
 using UnityEngine;
 
-namespace ToG.Config
+namespace Kott.Configs
 {
     public class ItemWindow : EditorWindow
     {

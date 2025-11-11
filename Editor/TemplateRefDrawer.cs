@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace ToG.Config
+namespace Kott.Configs
 {
     [CustomPropertyDrawer(typeof(TemplateRef<>))]
     public class TemplateRefDrawer : PropertyDrawer

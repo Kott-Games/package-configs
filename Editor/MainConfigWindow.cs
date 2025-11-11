@@ -4,7 +4,7 @@ using Unity.RemoteConfig.Editor;
 using UnityEditor;
 using UnityEngine;
 
-namespace ToG.Config
+namespace Kott.Configs
 {
     public class MainConfigWindow : EditorWindow
     {

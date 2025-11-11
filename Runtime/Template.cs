@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
-namespace ToG.Config
+namespace Kott.Configs
 {
     public interface ITemplate
     {

@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ToG.Config
+namespace Kott.Configs
 {
     public static class TemplateReferenceUtility
     {

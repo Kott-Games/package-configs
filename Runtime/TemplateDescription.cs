@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ToG.Config
+namespace Kott.Configs
 {
     [Serializable]
     public class TemplateDescription

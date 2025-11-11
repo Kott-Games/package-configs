@@ -1,3 +1,4 @@
+using Kott.Utilities.Progress;
 using Newtonsoft.Json;
 using System;
 using System.Collections;
@@ -5,13 +6,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using ToG.Scopes;
 using Unity.Services.RemoteConfig;
 using UnityEngine;
 
-namespace ToG.Config
+namespace Kott.Configs
 {
-    [CreateAssetMenu(fileName = "ConfigManager_Remote", menuName = "Manager/Config Manager/Remote")]
+    [CreateAssetMenu(fileName = "ConfigManager_Remote", menuName = "Manager/Config Manager (Remote)", order = 9002)]
     public class RemoteConfigManager : ConfigManager
     {
         private struct UserAttributes
@@ -78,10 +78,10 @@ namespace ToG.Config
         private Dictionary<Type, IList> _templateCollections;
         private Dictionary<string, object> _templateLookup;
 
-        public override IEnumerator InitializeAsync(IProgress<ScopeProgress> progress)
+        public override IEnumerator InitializeAsync(IProgress<ProgressReport> progress)
         {
-            yield return InitializeRemote();
             yield return base.InitializeAsync(progress);
+            yield return InitializeRemote();
         }
 
         private async Task InitializeRemote()

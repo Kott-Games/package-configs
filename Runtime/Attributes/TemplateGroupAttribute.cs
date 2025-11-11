@@ -1,6 +1,6 @@
 using System;
 
-namespace ToG.Config.Attributes
+namespace Kott.Configs.Attributes
 {
     [AttributeUsage(AttributeTargets.Class)]
     public class TemplateGroupAttribute : Attribute
