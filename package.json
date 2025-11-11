@@ -19,6 +19,7 @@
   "documentationUrl": "",
   "dependencies": {
     "com.kott.scopes" : "1.0.0",
+    "com.unity.addressables": "2.7.4",
     "com.unity.remote-config" : "4.2.2",
     "com.unity.services.deployment": "1.6.2"
   }

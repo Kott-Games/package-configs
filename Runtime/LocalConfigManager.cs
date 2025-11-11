@@ -14,15 +14,18 @@ namespace Kott.Configs
         private Dictionary<Type, IList> _templateCollections;
         private Dictionary<string, ITemplate> _templateLookup;
 
-        public override IEnumerator Initialize(IProgress<ProgressReport> progress)
+        public override IEnumerator InitializeAsync(IProgress<ProgressReport> progress)
         {
-            yield return base.Initialize(progress);
+            yield return base.InitializeAsync(progress);
+            yield return InitializeLocal(progress);
+        }
 
+        private IEnumerator InitializeLocal(IProgress<ProgressReport> progress)
+        {
             _templateCollections = new();
             _templateLookup = new();
 
             progress.Report(new(0f, "Collect templates"));
-
             for (int i = 0; i < _container.Groups.Count; i++)
             {
                 var group = _container.Groups[i];
@@ -32,7 +35,7 @@ namespace Kott.Configs
 
                 progress.Report(new(
                     (float)i / _container.Groups.Count * 0.9f,
-                    $"Collect templates - {type.FullName}"));
+                    $"Collect templates\n{type.FullName}"));
                 yield return null;
 
                 for (int j = 0; j < group.MatchingTemplates.Count; j++)

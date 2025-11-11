@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Unity.Services.RemoteConfig;
 using UnityEngine;
 
@@ -77,15 +78,17 @@ namespace Kott.Configs
         private Dictionary<Type, IList> _templateCollections;
         private Dictionary<string, object> _templateLookup;
 
-        public override IEnumerator Initialize(IProgress<ProgressReport> progress)
+        public override IEnumerator InitializeAsync(IProgress<ProgressReport> progress)
         {
-            yield return base.Initialize(progress);
+            yield return base.InitializeAsync(progress);
+            yield return InitializeRemote();
+        }
 
+        private async Task InitializeRemote()
+        {
             RemoteConfigService.Instance.FetchCompleted += OnConfigFetchCompleted;
-            var fetchConfigsTask = RemoteConfigService.Instance.FetchConfigsAsync(
+            RuntimeConfig config = await RemoteConfigService.Instance.FetchConfigsAsync(
                 new UserAttributes(), new AppAttributes(), new FilterAttributes());
-            yield return new WaitUntil(() => fetchConfigsTask.IsCompleted);
-            RuntimeConfig config = fetchConfigsTask.Result;
 
             ConfigItemRefConverter itemRefConverter = new ConfigItemRefConverter();
 
