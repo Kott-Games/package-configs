@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Kott.Configs
+namespace ToG.Config
 {
     public class ConfigStructure : ScriptableObject
     {

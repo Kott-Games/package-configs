@@ -4,7 +4,7 @@ using Unity.Services.DeploymentApi.Editor;
 using UnityEditor;
 using UnityEngine;
 
-namespace Kott.Configs.Deploy
+namespace ToG.Config.Deploy
 {
     public static class DeployUtility
     {

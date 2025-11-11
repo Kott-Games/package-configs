@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace Kott.Configs
+namespace ToG.Config
 {
     public static class ConfigGUI
     {

@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Kott.Utilities;
+using ToG.Utility;
 using UnityEditor;
 using UnityEngine;
 
-namespace Kott.Configs
+namespace ToG.Config
 {
     [Serializable]
     public class ItemFilter

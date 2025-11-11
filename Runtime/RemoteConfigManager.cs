@@ -1,16 +1,17 @@
-using Kott.Utilities.Progress;
 using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+using ToG.Scopes;
 using Unity.Services.RemoteConfig;
 using UnityEngine;
 
-namespace Kott.Configs
+namespace ToG.Config
 {
-    [CreateAssetMenu(fileName = "ConfigManager_Remote", menuName = "Manager/Config Manager (Remote)", order = 9002)]
+    [CreateAssetMenu(fileName = "ConfigManager_Remote", menuName = "Manager/Config Manager/Remote")]
     public class RemoteConfigManager : ConfigManager
     {
         private struct UserAttributes
@@ -77,15 +78,17 @@ namespace Kott.Configs
         private Dictionary<Type, IList> _templateCollections;
         private Dictionary<string, object> _templateLookup;
 
-        public override IEnumerator Initialize(IProgress<ProgressReport> progress)
+        public override IEnumerator InitializeAsync(IProgress<ScopeProgress> progress)
         {
-            yield return base.Initialize(progress);
+            yield return InitializeRemote();
+            yield return base.InitializeAsync(progress);
+        }
 
+        private async Task InitializeRemote()
+        {
             RemoteConfigService.Instance.FetchCompleted += OnConfigFetchCompleted;
-            var fetchConfigsTask = RemoteConfigService.Instance.FetchConfigsAsync(
+            RuntimeConfig config = await RemoteConfigService.Instance.FetchConfigsAsync(
                 new UserAttributes(), new AppAttributes(), new FilterAttributes());
-            yield return new WaitUntil(() => fetchConfigsTask.IsCompleted);
-            RuntimeConfig config = fetchConfigsTask.Result;
 
             ConfigItemRefConverter itemRefConverter = new ConfigItemRefConverter();
 

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using Kott.Scopes;
+using ToG.Scopes;
 
-namespace Kott.Configs
+namespace ToG.Config
 {
     public abstract class ConfigManager : Manager<ConfigManager>
     {
@@ -13,9 +13,9 @@ namespace Kott.Configs
         //     Debug.Log($"SpecialTowerTemplate: {GetCollection<SpecialTowerTemplate>().Select(t => t.FormatID()).JoinString(", ")}");
         //     Debug.Log($"BuildingTemplate: {GetCollection<BuildingTemplate>().Select(t => t.FormatID()).JoinString(", ")}");
         // 
-        //     Debug.Log($"GameSettingsTemplate default: {GetTemplate<GameSettingsTemplate>("game_settings:default").FormatID()}");
-        //     Debug.Log($"BuildingTemplate kanon: {GetTemplate<BuildingTemplate>("building:kanon").FormatID()}");
-        //     Debug.Log($"BuildingTemplate small_hut: {GetTemplate<BuildingTemplate>("building:small_hut").FormatID()}");
+        //     Debug.Log($"GameSettingsTemplate default: {GetTemplate<GameSettingsTemplate>("game_settings+default").FormatID()}");
+        //     Debug.Log($"BuildingTemplate kanon: {GetTemplate<BuildingTemplate>("building+kanon").FormatID()}");
+        //     Debug.Log($"BuildingTemplate small_hut: {GetTemplate<BuildingTemplate>("building+small_hut").FormatID()}");
         // 
         //     await base.InitializeAsync();
         // }

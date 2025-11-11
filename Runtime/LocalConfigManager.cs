@@ -1,12 +1,12 @@
-using Kott.Utilities.Progress;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using ToG.Scopes;
 using UnityEngine;
 
-namespace Kott.Configs
+namespace ToG.Config
 {
-    [CreateAssetMenu(fileName = "ConfigManager_Local", menuName = "Manager/Config Manager (Local)", order = 9002)]
+    [CreateAssetMenu(fileName = "ConfigManager_Local", menuName = "Manager/Config Manager/Local")]
     public class LocalConfigManager : ConfigManager
     {
         [SerializeField] private ConfigStructure _container;
@@ -14,15 +14,18 @@ namespace Kott.Configs
         private Dictionary<Type, IList> _templateCollections;
         private Dictionary<string, ITemplate> _templateLookup;
 
-        public override IEnumerator Initialize(IProgress<ProgressReport> progress)
+        public override IEnumerator InitializeAsync(IProgress<ScopeProgress> progress)
         {
-            yield return base.Initialize(progress);
+            yield return InitializeLocal(progress);
+            yield return base.InitializeAsync(progress);
+        }
 
+        private IEnumerator InitializeLocal(IProgress<ScopeProgress> progress)
+        {
             _templateCollections = new();
             _templateLookup = new();
 
-            progress.Report(new(0f, "Collect templates"));
-
+            progress.Report(new ScopeProgress(0f, "Collect templates"));
             for (int i = 0; i < _container.Groups.Count; i++)
             {
                 var group = _container.Groups[i];
@@ -30,9 +33,9 @@ namespace Kott.Configs
                 Array array = Array.CreateInstance(type, group.MatchingTemplates.Count);
                 _templateCollections.Add(type, array);
 
-                progress.Report(new(
+                progress.Report(new ScopeProgress(
                     (float)i / _container.Groups.Count * 0.9f,
-                    $"Collect templates - {type.FullName}"));
+                    $"Collect templates\n{type.FullName}"));
                 yield return null;
 
                 for (int j = 0; j < group.MatchingTemplates.Count; j++)

@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Kott.Configs
+namespace ToG.Config
 {
     public interface ITemplateRef
     {
@@ -9,22 +9,22 @@ namespace Kott.Configs
     }
 
     [Serializable]
-    public class TemplateRef<T> : ITemplateRef
-        where T : ITemplate
+    public class TemplateRef<TTemplate> : ITemplateRef
+        where TTemplate : Template
     {
         [SerializeField] private Template _asset;
 
-        private T _template;
+        private TTemplate _template;
 
-        public T Template
+        public TTemplate T
         {
             get
             {
 #if UNITY_EDITOR
-                _template = (T)(object)_asset;
+                _template = (TTemplate)(object)_asset;
 #else
                 if (_template == null && _asset != null)
-                    _template = (T)(object)_asset;
+                    _template = (TTemplate)_asset;
 #endif
                 return _template;
             }
@@ -39,7 +39,7 @@ namespace Kott.Configs
             set
             {
                 _asset = value;
-                _template = (T)(object)_asset;
+                _template = (TTemplate)_asset;
             }
         }
     }
