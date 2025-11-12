@@ -1,6 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using Kott.Utilities;
+using Newtonsoft.Json;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace Kott.Configs
@@ -12,7 +12,6 @@ namespace Kott.Configs
         AsyncOperationHandle LoadAssets();
     }
 
-    // TODO create config package (needs to use assembly in type key)
     public abstract class Template : ScriptableObject, ITemplate
     {
         [JsonProperty(Order = -9001)]
@@ -24,8 +23,7 @@ namespace Kott.Configs
 
         public AsyncOperationHandle LoadAssets()
         {
-            return Addressables.LoadAssetsAsync<UnityEngine.Object>(
-                AssetAddressesCombined, null, Addressables.MergeMode.Union);
+            return AddressablesUtility.LoadAssets(AssetAddressesCombined);
         }
     }
 
