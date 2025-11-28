@@ -1,3 +1,4 @@
+using Kott.Scopes;
 using Kott.Utilities.Progress;
 using Newtonsoft.Json;
 using System;
@@ -11,8 +12,7 @@ using UnityEngine;
 
 namespace Kott.Configs
 {
-    [CreateAssetMenu(fileName = "ConfigManager_Remote", menuName = "Manager/Config Manager (Remote)", order = 9002)]
-    public class RemoteConfigManager : ConfigManager
+    public class RemoteConfigManager : Manager, IConfigManager
     {
         private struct UserAttributes
         {
@@ -182,12 +182,14 @@ namespace Kott.Configs
             }
         }
 
-        public override IReadOnlyList<T> GetCollection<T>()
+        public IReadOnlyList<T> GetCollection<T>()
+            where T : Template
         {
             return (IReadOnlyList<T>)_templateCollections[typeof(T)];
         }
 
-        public override T GetTemplate<T>(string key)
+        public T GetTemplate<T>(string key)
+            where T : Template
         {
             return (T)_templateLookup[key];
         }

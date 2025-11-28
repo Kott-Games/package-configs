@@ -1,3 +1,4 @@
+using Kott.Scopes;
 using Kott.Utilities.Progress;
 using System;
 using System.Collections;
@@ -6,8 +7,7 @@ using UnityEngine;
 
 namespace Kott.Configs
 {
-    [CreateAssetMenu(fileName = "ConfigManager_Local", menuName = "Manager/Config Manager (Local)", order = 9002)]
-    public class LocalConfigManager : ConfigManager
+    public class LocalConfigManager : Manager, IConfigManager
     {
         [SerializeField] private ConfigStructure _container;
 
@@ -52,12 +52,14 @@ namespace Kott.Configs
             }
         }
 
-        public override IReadOnlyList<T> GetCollection<T>()
+        public IReadOnlyList<T> GetCollection<T>()
+            where T : Template
         {
             return (IReadOnlyList<T>)_templateCollections[typeof(T)];
         }
 
-        public override T GetTemplate<T>(string key)
+        public T GetTemplate<T>(string key)
+            where T : Template
         {
             return (T)_templateLookup[key];
         }

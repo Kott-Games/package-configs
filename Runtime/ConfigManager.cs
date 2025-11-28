@@ -1,11 +1,16 @@
-using System.Collections.Generic;
 using Kott.Scopes;
+using System.Collections.Generic;
 
 namespace Kott.Configs
 {
-    public abstract class ConfigManager : Manager<ConfigManager>
+    public interface IConfigManager : IManagerContract<IConfigManager>
     {
-        public abstract IReadOnlyList<T> GetCollection<T>() where T : Template;
-        public abstract T GetTemplate<T>(string key) where T : Template;
+        IReadOnlyList<T> GetCollection<T>() where T : Template;
+        T GetTemplate<T>(string key) where T : Template;
+    }
+
+    public class ConfigManager
+    {
+        public static IConfigManager Instance => ScopeHandler.GetManager<IConfigManager>();
     }
 }
