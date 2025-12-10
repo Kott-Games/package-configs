@@ -8,9 +8,4 @@ namespace Kott.Configs
         IReadOnlyList<T> GetCollection<T>() where T : Template;
         T GetTemplate<T>(string key) where T : Template;
     }
-
-    public class ConfigManager
-    {
-        public static IConfigManager Instance => ScopeHandler.GetManager<IConfigManager>();
-    }
 }

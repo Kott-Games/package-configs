@@ -14,14 +14,10 @@ namespace Kott.Configs
         private Dictionary<Type, IList> _templateCollections;
         private Dictionary<string, ITemplate> _templateLookup;
 
-        public override IEnumerator InitializeAsync(IProgress<ProgressReport> progress)
+        public override IEnumerator Initialize(IProgress<ProgressReport> progress)
         {
-            yield return base.InitializeAsync(progress);
-            yield return InitializeLocal(progress);
-        }
+            yield return base.Initialize(progress);
 
-        private IEnumerator InitializeLocal(IProgress<ProgressReport> progress)
-        {
             _templateCollections = new();
             _templateLookup = new();
 
