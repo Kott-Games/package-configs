@@ -10,7 +10,6 @@ namespace Kott.Configs
 
     [Serializable]
     public class TemplateRef<TTemplate> : ITemplateRef
-        where TTemplate : Template
     {
         [SerializeField] private Template _asset;
 
@@ -39,7 +38,7 @@ namespace Kott.Configs
             set
             {
                 _asset = value;
-                _template = (TTemplate)_asset;
+                _template = (TTemplate)(object)_asset;
             }
         }
     }
