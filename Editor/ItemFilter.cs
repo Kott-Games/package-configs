@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Kott.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Kott.Utilities;
 using UnityEditor;
 using UnityEngine;
 

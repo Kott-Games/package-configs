@@ -2,7 +2,7 @@ using System;
 
 namespace Kott.Configs.Attributes
 {
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Class, Inherited = true)]
     public class TemplateGroupAttribute : Attribute
     {
         public TemplateGroupAttribute(string groupID)
