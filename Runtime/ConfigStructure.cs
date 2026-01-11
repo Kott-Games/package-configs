@@ -9,6 +9,7 @@ namespace Kott.Configs
         [Serializable]
         public class Group
         {
+            public string ID;
             public string TypeString;
             public List<string> BaseTypeStrings = new();
             public List<Template> Templates = new();

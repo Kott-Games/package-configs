@@ -93,7 +93,7 @@ namespace Kott.Configs
                     rootProperty.arraySize = 1;
 
                 SerializedProperty templateProperty = rootProperty.GetArrayElementAtIndex(0);
-                if (templateProperty.type == typeof(TemplateRef<>).Name && !templateProperty.isArray)
+                if (templateProperty.type == typeof(TemplateReference<>).Name && !templateProperty.isArray)
                 {
                     _table.Columns.Add(new Column()
                     {
@@ -203,7 +203,7 @@ namespace Kott.Configs
                 DrawArrayProperty(rootProperty);
             }
             else if (rootProperty.propertyType == SerializedPropertyType.Generic &&
-                rootProperty.type != typeof(TemplateRef<>).Name ||
+                rootProperty.type != typeof(TemplateReference<>).Name ||
                 rootProperty.propertyType == SerializedPropertyType.Vector4)
             {
                 foreach (SerializedProperty subProperty in ConfigGUI

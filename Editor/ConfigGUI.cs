@@ -80,7 +80,7 @@ namespace Kott.Configs
                     }
                 case SerializedPropertyType.Generic:
                     {
-                        if (property.type == typeof(TemplateRef<>).Name && !property.isArray)
+                        if (property.type == typeof(TemplateReference<>).Name && !property.isArray)
                             return 150f;
                         return 60f;
                     }
@@ -163,7 +163,7 @@ namespace Kott.Configs
                     break;
                 case SerializedPropertyType.Generic:
                     {
-                        if (property.type == typeof(TemplateRef<>).Name && !property.isArray)
+                        if (property.type == typeof(TemplateReference<>).Name && !property.isArray)
                         {
                             EditorGUI.PropertyField(position, property, GUIContent.none, false);
                         }

@@ -12,7 +12,7 @@ namespace Kott.Configs
         [SerializeField] private ConfigStructure _container;
 
         private Dictionary<Type, IList> _templateCollections;
-        private Dictionary<string, ITemplate> _templateLookup;
+        private Dictionary<string, Template> _templateLookup;
 
         public override IEnumerator Initialize(IProgress<ProgressReport> progress)
         {

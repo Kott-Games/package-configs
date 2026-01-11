@@ -14,9 +14,9 @@ namespace Kott.Configs
     {
         private class GroupData
         {
-            public Type Type;
-            public HashSet<Type> MatchingTypes = new();
-            public List<Template> Templates = new();
+            public Type Type { get; }
+            public HashSet<Type> MatchingTypes { get; } = new();
+            public List<Template> Templates { get; } = new();
 
             public GroupData(Type type)
             {
@@ -41,22 +41,22 @@ namespace Kott.Configs
             }
         }
 
-        private class TemplateReferenceData
+        private class TemplateReferenceCollection
         {
-            public HashSet<ITemplateRef> TemplateRefsDirect = new();
-            public HashSet<ITemplateAssetRef> TemplateAssetRefsDirect = new();
+            public HashSet<ITemplateReference> TemplateReferencesDirect { get; } = new();
+            public HashSet<ITemplateAssetReference> TemplateAssetReferencesDirect { get; } = new();
 
-            public HashSet<ITemplateRef> TemplateRefsCombined = new();
-            public HashSet<ITemplateAssetRef> TemplateAssetRefsCombined = new();
+            public HashSet<ITemplateReference> TemplateReferencesCombined { get; } = new();
+            public HashSet<ITemplateAssetReference> TemplateAssetReferencesCombined { get; } = new();
 
-            public bool IsCombined;
+            public bool IsCombined { get; set; }
         }
 
         public static void UpdateConfigStructure()
         {
             Dictionary<Type, GroupData> groups = new();
             Dictionary<Type, ConfigStructure.Group> groupStructures = new();
-            Dictionary<Template, TemplateReferenceData> templateReferences = new();
+            Dictionary<Template, TemplateReferenceCollection> templateReferences = new();
 
             // collect base data for each template
             // - create group data for each concrete type that shows up
@@ -76,19 +76,19 @@ namespace Kott.Configs
 
                 groupData.Templates.Add(template);
 
-                TemplateReferenceData referenceData = new();
+                TemplateReferenceCollection referenceData = new();
                 templateReferences.Add(template, referenceData);
 
                 TemplateReferenceUtility.GetTemplateRefs(template,
-                    referenceData.TemplateRefsDirect,
-                    referenceData.TemplateAssetRefsDirect);
-                referenceData.TemplateRefsCombined.UnionWith(referenceData.TemplateRefsDirect);
-                referenceData.TemplateAssetRefsCombined.UnionWith(referenceData.TemplateAssetRefsDirect);
+                    referenceData.TemplateReferencesDirect,
+                    referenceData.TemplateAssetReferencesDirect);
+                referenceData.TemplateReferencesCombined.UnionWith(referenceData.TemplateReferencesDirect);
+                referenceData.TemplateAssetReferencesCombined.UnionWith(referenceData.TemplateAssetReferencesDirect);
 
                 // update asset references
-                foreach (ITemplateAssetRef assetRef in referenceData.TemplateAssetRefsDirect)
+                foreach (ITemplateAssetReference assetReference in referenceData.TemplateAssetReferencesDirect)
                 {
-                    UpdateAssetReference(template, assetRef);
+                    UpdateAssetReference(template, assetReference);
                 }
             }
 
@@ -98,8 +98,8 @@ namespace Kott.Configs
             {
                 CombineReferences(template, templateReferences);
 
-                TemplateReferenceData referenceData = templateReferences[template];
-                template.AssetAddressesCombined = referenceData.TemplateAssetRefsCombined
+                TemplateReferenceCollection referenceData = templateReferences[template];
+                template.AssetAddressesCombined = referenceData.TemplateAssetReferencesCombined
                     .Where(assetRef => assetRef.Asset)
                     .Select(assetRef => assetRef.Address)
                     .ToArray();
@@ -107,7 +107,7 @@ namespace Kott.Configs
                 EditorUtility.SetDirty(template);
 
                 // basic reference loop detection
-                if (referenceData.TemplateRefsCombined.Any(t => t.Asset == template))
+                if (referenceData.TemplateReferencesCombined.Any(t => t.Template == template))
                 {
                     Debug.Log($"[Config] Detected template reference loop: {template.name}");
                 }
@@ -122,8 +122,8 @@ namespace Kott.Configs
                     .Select(t => ConfigEditorUtility.TypeToLabel(t))
                     .ToArray();
 
-                TemplateGroupAttribute groupAttribute = groupData.Type.GetCustomAttribute<TemplateGroupAttribute>();
-                string groupID = groupAttribute != null ? groupAttribute.GroupID : groupData.Type.Name;
+                TemplateGroupAttribute groupAttribute = groupData.Type.GetCustomAttribute<TemplateGroupAttribute>(true);
+                string groupID = groupAttribute?.GroupID ?? groupData.Type.Name;
 
                 foreach (Template template in groupData.Templates)
                 {
@@ -155,7 +155,9 @@ namespace Kott.Configs
                     groupStructure.MatchingTemplates.AddRange(groupData.Templates);
                 }
 
-                groupStructures[groupData.Type].Templates.AddRange(groupData.Templates);
+                ConfigStructure.Group group = groupStructures[groupData.Type];
+                group.Templates.AddRange(groupData.Templates);
+                group.ID = groupID;
             }
 
             ConfigStructure configStructure = ConfigEditorUtility.GetConfigDataCache<ConfigStructure>();
@@ -177,16 +179,17 @@ namespace Kott.Configs
                 Type baseType = type.BaseType;
                 CollectMatchingTypes(baseType, matchingTypes);
 
-                Type[] interfaceTypes = type.GetInterfaces();
-                for (int i = 0; i < interfaceTypes.Length; i++)
-                    CollectMatchingTypes(interfaceTypes[i], matchingTypes);
+                // TODO evaluate if template interfaces are needed
+                // Type[] interfaceTypes = type.GetInterfaces();
+                // for (int i = 0; i < interfaceTypes.Length; i++)
+                //     CollectMatchingTypes(interfaceTypes[i], matchingTypes);
             }
         }
 
-        private static void UpdateAssetReference(Template template, ITemplateAssetRef assetRef)
+        private static void UpdateAssetReference(Template template, ITemplateAssetReference assetReference)
         {
-            if (assetRef.Asset != null &&
-                AssetDatabase.TryGetGUIDAndLocalFileIdentifier(assetRef.Asset, out string guid, out long localId))
+            if (assetReference.Asset != null &&
+                AssetDatabase.TryGetGUIDAndLocalFileIdentifier(assetReference.Asset, out string guid, out long localId))
             {
                 AddressableAssetEntry assetEntry;
                 if ((assetEntry = AddressableAssetSettingsDefaultObject.Settings.FindAssetEntry(guid)) == null)
@@ -197,34 +200,34 @@ namespace Kott.Configs
                 }
 
                 string key = assetEntry.address;
-                if (!AssetDatabase.IsMainAsset(assetRef.Asset))
+                if (!AssetDatabase.IsMainAsset(assetReference.Asset))
                 {
-                    key += $"[{assetRef.Asset.name}]";
+                    key += $"[{assetReference.Asset.name}]";
                 }
 
-                if (assetRef.Address != key)
+                if (assetReference.Address != key)
                 {
-                    Debug.Log($"[Config] Setting address of asset ref: {assetRef.Address} -> {key}");
-                    assetRef.Address = key;
+                    Debug.Log($"[Config] Setting address of asset ref: {assetReference.Address} -> {key}");
+                    assetReference.Address = key;
                     EditorUtility.SetDirty(template);
                 }
             }
         }
 
         private static void CombineReferences(Template template,
-            Dictionary<Template, TemplateReferenceData> data)
+            Dictionary<Template, TemplateReferenceCollection> data)
         {
-            TemplateReferenceData referenceData = data[template];
-            if (referenceData.IsCombined) return;
-            referenceData.IsCombined = true;
+            TemplateReferenceCollection referenceCollection = data[template];
+            if (referenceCollection.IsCombined) return;
+            referenceCollection.IsCombined = true;
 
-            foreach (var item in referenceData.TemplateRefsDirect)
+            foreach (ITemplateReference reference in referenceCollection.TemplateReferencesDirect)
             {
-                if (!item.Asset) continue;
-                CombineReferences(item.Asset, data);
-                TemplateReferenceData subData = data[item.Asset];
-                referenceData.TemplateRefsCombined.UnionWith(subData.TemplateRefsCombined);
-                referenceData.TemplateAssetRefsCombined.UnionWith(subData.TemplateAssetRefsCombined);
+                if (!reference.Template) continue;
+                CombineReferences(reference.Template, data);
+                TemplateReferenceCollection subData = data[reference.Template];
+                referenceCollection.TemplateReferencesCombined.UnionWith(subData.TemplateReferencesCombined);
+                referenceCollection.TemplateAssetReferencesCombined.UnionWith(subData.TemplateAssetReferencesCombined);
             }
         }
     }

@@ -1,4 +1,8 @@
+using Kott.Utilities.JsonConverters;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using Unity.RemoteConfig.Editor;
 using UnityEditor;
@@ -90,60 +94,74 @@ namespace Kott.Configs
         {
             // TODO make remote config push work again
 
-            // JObject entries = new JObject();
+            JObject entries = new JObject();
+
+            JsonSerializerSettings settings = new()
+            {
+            };
+
+            JsonSerializer serializer = JsonSerializer.CreateDefault(settings);
+            serializer.Converters.Add(new Vector2Converter());
+            serializer.Converters.Add(new Vector2IntConverter());
+            serializer.Converters.Add(new Vector3Converter());
+            serializer.Converters.Add(new Vector3IntConverter());
+            serializer.Converters.Add(new Vector4Converter());
+            serializer.Converters.Add(new QuaternionConverter());
+            serializer.Converters.Add(new ColorConverter());
+            serializer.Converters.Add(new RectConverter());
+            serializer.Converters.Add(new RectIntConverter());
+            serializer.Converters.Add(new BoundsConverter());
+            serializer.Converters.Add(new BoundsIntConverter());
+            // serializer.Converters.Add(new TemplateReferenceConverter());
+            serializer.Converters.Add(new TemplateAssetReferenceConverter());
+
+            ConfigStructure configStructure = ConfigEditorUtility.GetConfigDataCache<ConfigStructure>();
+
+            // entries.Add("config_description", JArray.FromObject(configStructure.Groups.Select(g => g.TypeString), serializer));
             // 
-            // JsonSerializer serializer = JsonSerializer.CreateDefault();
-            // serializer.Converters.Add(new ConfigItemRefConverter());
-            // serializer.Converters.Add(new Vector2Converter());
-            // serializer.Converters.Add(new Vector2IntConverter());
-            // serializer.Converters.Add(new Vector3Converter());
-            // serializer.Converters.Add(new Vector3IntConverter());
-            // serializer.Converters.Add(new Vector4Converter());
-            // serializer.Converters.Add(new QuaternionConverter());
-            // serializer.Converters.Add(new ColorConverter());
-            // serializer.Converters.Add(new RectConverter());
-            // serializer.Converters.Add(new RectIntConverter());
-            // serializer.Converters.Add(new BoundsConverter());
-            // serializer.Converters.Add(new BoundsIntConverter());
-            // 
-            // configStructure.Groups.Clear();
-            // 
-            // foreach (TemplateTypeData typeData in TemplateTypeData.GetAll())
-            // {
-            //     var group = new TemplateContainer.Group();
-            //     configStructure.Groups.Add(group);
-            // 
-            //     group.Description.GroupID = typeData.GroupID;
-            //     group.Description.TemplateType = typeData.Type;
-            //     group.Description.TemplateTypeString = typeData.Type.AssemblyQualifiedName;
-            //     foreach (var parentTypeData in typeData.Inherited)
-            //         group.Description.ParentGroupIDs.Add(parentTypeData.GroupID);
-            // 
-            //     foreach (TemplateWrapper wrapper in TemplateWrapperUtility.GetWithType(typeData))
-            //     {
-            //         if (wrapper.Item == null)
-            //             continue;
-            // 
-            //         group.Wrappers.Add(wrapper);
-            //     }
-            // }
-            // 
-            // entries.Add("config_description", JArray.FromObject(configStructure.Groups.Select(g => g.Description), serializer));
-            // 
-            // foreach (var group in configStructure.Groups)
+            // foreach (ConfigStructure.Group group in configStructure.Groups)
             // {
             //     JArray items = new JArray();
             // 
-            //     foreach (TemplateWrapper wrapper in group.Wrappers)
+            //     foreach (Template template in group.Templates)
             //     {
-            //         items.Add(JObject.FromObject(wrapper.Item, serializer));
+            //         items.Add(JObject.FromObject(template, serializer));
             //     }
             // 
-            //     entries.Add(group.Description.GroupID, items);
+            //     entries.Add(group.TypeString, items);
             // }
-            // 
-            // EditorUtility.SetDirty(configStructure);
-            // RCJsonAPI.WriteToConfigAsset("json_config", entries);
+
+            Dictionary<string, JArray> templateArrays = new();
+
+            foreach (ConfigStructure.Group group in configStructure.Groups)
+            {
+                if (group.Templates.Count == 0) continue;
+
+                if (!templateArrays.TryGetValue(group.ID, out JArray jTemplates))
+                {
+                    jTemplates = new();
+                    templateArrays.Add(group.ID, jTemplates);
+                    entries.Add(group.ID, jTemplates);
+                }
+
+                foreach (Template template in group.Templates)
+                {
+                    JObject jTemplate = JObject.FromObject(template, serializer);
+                    jTemplate.AddFirst(new JProperty("$type", group.TypeString));
+
+                    // remove asset properties
+                    jTemplate.Remove("name");
+                    jTemplate.Remove("hideFlags");
+
+                    jTemplates.Add(jTemplate);
+                }
+
+                // jGroup.Add("id", group.ID);
+                // jGroup.Add("type", group.TypeString);
+                // jGroup.Add("templates", jTemplates);
+            }
+
+            RCJsonAPI.WriteToConfigAsset("json_config", entries);
         }
     }
 }

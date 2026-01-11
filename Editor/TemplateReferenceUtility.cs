@@ -59,12 +59,12 @@ namespace Kott.Configs
         }
 
         public static void GetTemplateRefs(Template template,
-            ICollection<ITemplateRef> templateRefs, ICollection<ITemplateAssetRef> templateAssetRefs)
+            ICollection<ITemplateReference> templateReferences, ICollection<ITemplateAssetReference> templateAssetReferences)
         {
             JsonSerializer serializer = JsonSerializer.CreateDefault();
             serializer.Converters.Add(new OtherConverter());
-            serializer.Converters.Add(new CollectConverter<ITemplateRef>(templateRefs));
-            serializer.Converters.Add(new CollectConverter<ITemplateAssetRef>(templateAssetRefs));
+            serializer.Converters.Add(new CollectConverter<ITemplateReference>(templateReferences));
+            serializer.Converters.Add(new CollectConverter<ITemplateAssetReference>(templateAssetReferences));
 
             JToken token = JToken.FromObject(template, serializer);
         }

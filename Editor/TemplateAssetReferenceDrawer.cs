@@ -3,8 +3,8 @@ using UnityEngine;
 
 namespace Kott.Configs
 {
-    [CustomPropertyDrawer(typeof(TemplateAssetRef<>))]
-    public class TemplateAssetRefDrawer : PropertyDrawer
+    [CustomPropertyDrawer(typeof(TemplateAssetReference<>))]
+    public class TemplateAssetReferenceDrawer : PropertyDrawer
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
@@ -12,7 +12,7 @@ namespace Kott.Configs
             SerializedProperty addressProperty = property.FindPropertyRelative("_address");
 
             label.tooltip = addressProperty.stringValue;
-            EditorGUI.PropertyField(position, assetProperty, label, false);
+            EditorGUI.PropertyField(position, assetProperty, label, true);
         }
     }
 }

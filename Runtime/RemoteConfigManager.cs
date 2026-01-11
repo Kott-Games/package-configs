@@ -36,47 +36,47 @@ namespace Kott.Configs
             public string[] schemaId;
         }
 
-        private class ConfigItemRefConverter : JsonConverter<ITemplateRef>
-        {
-            public struct ItemRefInfo
-            {
-                public ITemplateRef ItemRef;
-                public string GroupID;
-                public string ID;
-            }
-
-            public List<ItemRefInfo> ItemRefInfos = new List<ItemRefInfo>();
-
-            public override ITemplateRef ReadJson(JsonReader reader, Type objectType, ITemplateRef existingValue, bool hasExistingValue, JsonSerializer serializer)
-            {
-                if (existingValue == null)
-                {
-                    existingValue = (ITemplateRef)Activator.CreateInstance(objectType);
-                }
-
-                string info = serializer.Deserialize<string>(reader);
-                if (!string.IsNullOrEmpty(info))
-                {
-                    string[] splitInfo = info.Split(':');
-                    ItemRefInfos.Add(new ItemRefInfo()
-                    {
-                        ItemRef = existingValue,
-                        GroupID = splitInfo[0],
-                        ID = splitInfo[1],
-                    });
-                }
-
-                return existingValue;
-            }
-
-            public override void WriteJson(JsonWriter writer, ITemplateRef value, JsonSerializer serializer)
-            {
-                throw new NotImplementedException();
-            }
-        }
+        // private class ConfigItemRefConverter : JsonConverter<ITemplateRef>
+        // {
+        //     public struct ItemRefInfo
+        //     {
+        //         public ITemplateRef ItemRef;
+        //         public string GroupID;
+        //         public string ID;
+        //     }
+        // 
+        //     public List<ItemRefInfo> ItemRefInfos = new List<ItemRefInfo>();
+        // 
+        //     public override ITemplateRef ReadJson(JsonReader reader, Type objectType, ITemplateRef existingValue, bool hasExistingValue, JsonSerializer serializer)
+        //     {
+        //         if (existingValue == null)
+        //         {
+        //             existingValue = (ITemplateRef)Activator.CreateInstance(objectType);
+        //         }
+        // 
+        //         string info = serializer.Deserialize<string>(reader);
+        //         if (!string.IsNullOrEmpty(info))
+        //         {
+        //             string[] splitInfo = info.Split(':');
+        //             ItemRefInfos.Add(new ItemRefInfo()
+        //             {
+        //                 ItemRef = existingValue,
+        //                 GroupID = splitInfo[0],
+        //                 ID = splitInfo[1],
+        //             });
+        //         }
+        // 
+        //         return existingValue;
+        //     }
+        // 
+        //     public override void WriteJson(JsonWriter writer, ITemplateRef value, JsonSerializer serializer)
+        //     {
+        //         throw new NotImplementedException();
+        //     }
+        // }
 
         private Dictionary<Type, IList> _templateCollections;
-        private Dictionary<string, object> _templateLookup;
+        private Dictionary<string, Template> _templateLookup;
 
         public override IEnumerator Initialize(IProgress<ProgressReport> progress)
         {
@@ -90,10 +90,10 @@ namespace Kott.Configs
             RuntimeConfig config = await RemoteConfigService.Instance.FetchConfigsAsync(
                 new UserAttributes(), new AppAttributes(), new FilterAttributes());
 
-            ConfigItemRefConverter itemRefConverter = new ConfigItemRefConverter();
+            // ConfigItemRefConverter itemRefConverter = new ConfigItemRefConverter();
 
             JsonSerializer serializer = JsonSerializer.CreateDefault();
-            serializer.Converters.Add(itemRefConverter);
+            // serializer.Converters.Add(itemRefConverter);
 
             string configDescriptionJson = config.GetJson("config_description", "{}");
             TemplateDescription[] descriptions = null;
@@ -153,15 +153,15 @@ namespace Kott.Configs
             }
 
             // resolve template references
-            foreach (ConfigItemRefConverter.ItemRefInfo itemRefInfo in itemRefConverter.ItemRefInfos)
-            {
-                Type type = groupMapping[itemRefInfo.GroupID];
-                Template item = _templateCollections[type]
-                    .Cast<Template>()
-                    .FirstOrDefault(i => i.ID == itemRefInfo.ID);
-
-                itemRefInfo.ItemRef.Asset = item;
-            }
+            // foreach (ConfigItemRefConverter.ItemRefInfo itemRefInfo in itemRefConverter.ItemRefInfos)
+            // {
+            //     Type type = groupMapping[itemRefInfo.GroupID];
+            //     Template item = _templateCollections[type]
+            //         .Cast<Template>()
+            //         .FirstOrDefault(i => i.ID == itemRefInfo.ID);
+            // 
+            //     itemRefInfo.ItemRef.Asset = item;
+            // }
         }
 
         private void OnConfigFetchCompleted(ConfigResponse response)

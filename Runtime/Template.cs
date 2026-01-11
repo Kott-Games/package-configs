@@ -5,19 +5,10 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace Kott.Configs
 {
-    public interface ITemplate
-    {
-        string ID { get; }
-
-        AsyncOperationHandle LoadAssets();
-    }
-
-    public abstract class Template : ScriptableObject, ITemplate
+    public abstract class Template : ScriptableObject
     {
         [JsonProperty(Order = -9001)]
         public string ID;
-
-        string ITemplate.ID => ID;
 
         public string[] AssetAddressesCombined;
 
