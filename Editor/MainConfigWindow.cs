@@ -1,7 +1,6 @@
 using Kott.Utilities.JsonConverters;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.RemoteConfig.Editor;
@@ -112,30 +111,26 @@ namespace Kott.Configs
             serializer.Converters.Add(new RectIntConverter());
             serializer.Converters.Add(new BoundsConverter());
             serializer.Converters.Add(new BoundsIntConverter());
-            // serializer.Converters.Add(new TemplateReferenceConverter());
+            serializer.Converters.Add(new TemplateReferenceConverter());
             serializer.Converters.Add(new TemplateAssetReferenceConverter());
 
             ConfigStructure configStructure = ConfigEditorUtility.GetConfigDataCache<ConfigStructure>();
 
-            // entries.Add("config_description", JArray.FromObject(configStructure.Groups.Select(g => g.TypeString), serializer));
-            // 
-            // foreach (ConfigStructure.Group group in configStructure.Groups)
-            // {
-            //     JArray items = new JArray();
-            // 
-            //     foreach (Template template in group.Templates)
-            //     {
-            //         items.Add(JObject.FromObject(template, serializer));
-            //     }
-            // 
-            //     entries.Add(group.TypeString, items);
-            // }
-
             Dictionary<string, JArray> templateArrays = new();
+
+            JArray jGroups = new();
+            entries.Add("template_groups", jGroups);
 
             foreach (ConfigStructure.Group group in configStructure.Groups)
             {
-                if (group.Templates.Count == 0) continue;
+                JObject jGroup = new();
+                jGroups.Add(jGroup);
+
+                jGroup.Add("id", group.ID);
+                jGroup.Add("type", group.TypeString);
+                jGroup.Add("templates", JArray.FromObject(group.MatchingTemplates.Select(t => t.ID)));
+
+                if (group.Templates.Count <= 0) continue;
 
                 if (!templateArrays.TryGetValue(group.ID, out JArray jTemplates))
                 {
@@ -155,10 +150,6 @@ namespace Kott.Configs
 
                     jTemplates.Add(jTemplate);
                 }
-
-                // jGroup.Add("id", group.ID);
-                // jGroup.Add("type", group.TypeString);
-                // jGroup.Add("templates", jTemplates);
             }
 
             RCJsonAPI.WriteToConfigAsset("json_config", entries);

@@ -17,13 +17,4 @@ namespace Kott.Configs
             return AddressablesUtility.LoadAssets(AssetAddressesCombined);
         }
     }
-
-    public static class TemplateExtensions
-    {
-        public static string FormatID(this Template template)
-        {
-            if (template == null) return "[NULL]";
-            return $"[{template.ID}]";
-        }
-    }
 }

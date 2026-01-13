@@ -134,9 +134,9 @@ namespace Kott.Configs
 
                 foreach (Type matchingType in groupData.MatchingTypes)
                 {
-                    if (!groupStructures.TryGetValue(matchingType, out var groupStructure))
+                    if (!groupStructures.TryGetValue(matchingType, out ConfigStructure.Group groupStructure))
                     {
-                        groupStructure = new ConfigStructure.Group();
+                        groupStructure = new();
                         groupStructure.TypeString = matchingType.AssemblyQualifiedName;
                         groupStructures.Add(matchingType, groupStructure);
 
@@ -155,9 +155,13 @@ namespace Kott.Configs
                     groupStructure.MatchingTemplates.AddRange(groupData.Templates);
                 }
 
-                ConfigStructure.Group group = groupStructures[groupData.Type];
-                group.Templates.AddRange(groupData.Templates);
-                group.ID = groupID;
+                groupStructures[groupData.Type].Templates.AddRange(groupData.Templates);
+            }
+
+            foreach ((Type groupType, ConfigStructure.Group groupStructure) in groupStructures)
+            {
+                TemplateGroupAttribute groupAttribute = groupType.GetCustomAttribute<TemplateGroupAttribute>(true);
+                groupStructure.ID = groupAttribute?.GroupID ?? groupType.Name;
             }
 
             ConfigStructure configStructure = ConfigEditorUtility.GetConfigDataCache<ConfigStructure>();
