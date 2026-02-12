@@ -64,7 +64,7 @@ namespace Kott.Configs
         {
             JsonSerializer serializer = JsonSerializer.CreateDefault();
             serializer.Converters.Add(new OtherConverter());
-            // serializer.Converters.Add(new CollectConverter<ITemplateReference>(templateReferences));
+            serializer.Converters.Add(new CollectConverter<ITemplateReference>(templateReferences));
             serializer.Converters.Add(new CollectConverter<ITemplateAssetReference>(templateAssetReferences));
 
             JToken token = JToken.FromObject(template, serializer);

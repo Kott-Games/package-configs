@@ -1,78 +1,109 @@
-﻿using UnityEditor;
+﻿using Newtonsoft.Json.Serialization;
+using System;
+using System.Linq;
+using UnityEditor;
 using UnityEngine;
+using UObject = UnityEngine.Object;
 
 namespace Kott.Configs
 {
     [CustomPropertyDrawer(typeof(TemplateReference<>))]
     public class TemplateReferenceDrawer : PropertyDrawer
     {
-        // private GUIStyle _buttonStyle;
+        private Type _type;
+        private Type[] _types;
+        private GUIContent[] _typeLabels;
+        private GUIContent _popupLabel;
+
+        private readonly NamingStrategy _namingStrategy = new SnakeCaseNamingStrategy();
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
+            CacheTypes(property);
+
+            Rect buttonRect = position;
+            buttonRect.width = 48f;
+            position.width -= buttonRect.width + 2f;
+            buttonRect.x += position.width + 2f;
+
             SerializedProperty templateProperty = property.FindPropertyRelative("_template");
             EditorGUI.PropertyField(position, templateProperty, label, true);
 
-            // if (_buttonStyle == null)
-            // {
-            //     _buttonStyle = new GUIStyle(EditorStyles.helpBox);
-            //     _buttonStyle.wordWrap = false;
-            // }
-            // 
-            // position = EditorGUI.PrefixLabel(position, label);
-            // 
-            // Rect buttonPosition = new Rect(position);
-            // Rect pingPosition = new Rect(position);
-            // 
-            // pingPosition.width = 28f;
-            // buttonPosition.width -= pingPosition.width;
-            // pingPosition.x += buttonPosition.width;
-            // 
-            // SerializedProperty assetProperty = property.FindPropertyRelative("_asset");
-            // GUIContent buttonLabel = EditorGUIUtility.ObjectContent(assetProperty.objectReferenceValue, typeof(Template));
-            // if (assetProperty.objectReferenceValue != null)
-            // {
-            //     buttonLabel = new GUIContent(buttonLabel);
-            //     buttonLabel.tooltip = buttonLabel.text;
-            //     buttonLabel.text = assetProperty.objectReferenceValue.name;
-            // }
-            // 
-            // if (GUI.Button(buttonPosition, buttonLabel, _buttonStyle))
-            // {
-            //     Type type = property.boxedValue.GetType().GetGenericArguments()[0];
-            //     string filter = $"l:{ConfigEditorUtility.TypeToLabel(type)}";
-            //     EditorGUIUtility.ShowObjectPicker<Template>(assetProperty.objectReferenceValue, false, filter, 69);
-            //     property.isExpanded = true;
-            // }
-            // 
-            // if (GUI.Button(pingPosition, new GUIContent("°_°")))
-            // {
-            //     EditorGUIUtility.PingObject(assetProperty.objectReferenceValue);
-            // }
-            // 
-            // if (EditorGUIUtility.GetObjectPickerControlID() == 69 && property.isExpanded)
-            // {
-            //     Event eCurrent = Event.current;
-            //     if (eCurrent.type == EventType.ExecuteCommand)
-            //     {
-            //         bool update = eCurrent.commandName == "ObjectSelectorUpdated";
-            //         bool close = eCurrent.commandName == "ObjectSelectorClosed";
-            //         if (update || close)
-            //         {
-            //             assetProperty.objectReferenceValue = EditorGUIUtility.GetObjectPickerObject();
-            //             eCurrent.Use();
-            // 
-            //             if (close)
-            //             {
-            //                 property.isExpanded = false;
-            //             }
-            //         }
-            //     }
-            // }
-            // else
-            // {
-            //     property.isExpanded = false;
-            // }
+            Type createType = HandleTypeDropdown(buttonRect);
+            if (createType != null)
+            {
+                Debug.Log($"Create new instance of {createType.Name}");
+                CreateSubAsset(property, templateProperty, createType);
+            }
+        }
+
+        private Type HandleTypeDropdown(Rect position)
+        {
+            if (_types.Length < 1) return null;
+            if (_types.Length == 1)
+            {
+                bool button = GUI.Button(position, "Create");
+                return button ? _types[0] : null;
+            }
+
+            int index = EditorGUI.Popup(position, _popupLabel, -1, _typeLabels);
+
+            // invalid or special case <none>
+            if (index <= 0 || index > _typeLabels.Length) return null;
+
+            Type createType = _types[index - 1];
+            return createType;
+        }
+
+        private void CacheTypes(SerializedProperty property)
+        {
+            Type type = property.boxedValue.GetType().GetGenericArguments()[0];
+            if (_type != null && _type.IsEquivalentTo(type)) return;
+            _type = type;
+
+            _types ??= TypeCache
+                .GetTypesDerivedFrom(typeof(object))
+                .Where(t => !t.IsAbstract && !t.IsInterface)
+                .Where(t => type.IsAssignableFrom(t))
+                .ToArray();
+
+            _typeLabels ??= _types
+                .Select(t => new GUIContent(t.Name))
+                .Prepend(new GUIContent("<none>"))
+                .ToArray();
+
+            _popupLabel = new GUIContent(type.Name);
+        }
+
+        private void CreateSubAsset(SerializedProperty property, SerializedProperty templateProperty, Type type)
+        {
+            UObject asset = property.serializedObject.targetObject;
+            UObject subAsset = ScriptableObject.CreateInstance(type);
+
+            const bool UsePrefix = true;
+
+            string name = _namingStrategy.GetPropertyName(property.displayName, false);
+            subAsset.name = UsePrefix ? $"{asset.name}_{name}" : name;
+            subAsset.hideFlags = HideFlags.None;
+
+            UObject previousAsset = templateProperty.objectReferenceValue;
+
+            // copy property values
+            if (previousAsset)
+                EditorUtility.CopySerialized(previousAsset, subAsset);
+
+            // delete unused subasset
+            if (previousAsset && AssetDatabase.IsSubAsset(previousAsset))
+            {
+                AssetDatabase.RemoveObjectFromAsset(previousAsset);
+                UObject.DestroyImmediate(previousAsset);
+            }
+
+            string assetPath = AssetDatabase.GetAssetPath(asset);
+            AssetDatabase.AddObjectToAsset(subAsset, assetPath);
+            AssetDatabase.ImportAsset(assetPath);
+
+            templateProperty.objectReferenceValue = subAsset;
         }
     }
 }

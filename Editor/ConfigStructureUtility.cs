@@ -1,6 +1,7 @@
 using Kott.Configs.Attributes;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
@@ -128,7 +129,17 @@ namespace Kott.Configs
                 foreach (Template template in groupData.Templates)
                 {
                     AssetDatabase.SetLabels(template, labels);
-                    template.ID = $"{groupID}+{template.name}";
+                    if (AssetDatabase.IsSubAsset(template))
+                    {
+                        string subPath = AssetDatabase.GetAssetPath(template);
+                        string name = Path.GetFileNameWithoutExtension(subPath);
+                        template.ID = $"{groupID}+{name}+{template.name}";
+                    }
+                    else
+                    {
+                        template.ID = $"{groupID}+{template.name}";
+                    }
+
                     EditorUtility.SetDirty(template);
                 }
 

@@ -36,7 +36,9 @@ namespace Kott.Configs
         {
             return AssetDatabase.FindAssets($"t:{type.FullName}")
                 .Select(guid => AssetDatabase.GUIDToAssetPath(guid))
-                .Select(assetPath => AssetDatabase.LoadAssetAtPath<Template>(assetPath));
+                .SelectMany(assetPath => AssetDatabase.LoadAllAssetsAtPath(assetPath))
+                .Select(asset => asset as Template)
+                .Where(template => template);
         }
 
         public static IEnumerable<T> GetTemplatesWithType<T>()
@@ -44,7 +46,9 @@ namespace Kott.Configs
         {
             return AssetDatabase.FindAssets($"t:{typeof(T).FullName}")
                 .Select(guid => AssetDatabase.GUIDToAssetPath(guid))
-                .Select(assetPath => AssetDatabase.LoadAssetAtPath<T>(assetPath));
+                .SelectMany(assetPath => AssetDatabase.LoadAllAssetsAtPath(assetPath))
+                .Select(asset => asset as T)
+                .Where(template => template);
         }
 
         public static T GetConfigDataCache<T>()
