@@ -13,7 +13,6 @@ namespace Kott.Configs
         private Type _type;
         private Type[] _types;
         private GUIContent[] _typeLabels;
-        private GUIContent _popupLabel;
 
         private readonly NamingStrategy _namingStrategy = new SnakeCaseNamingStrategy();
 
@@ -46,7 +45,7 @@ namespace Kott.Configs
                 return button ? _types[0] : null;
             }
 
-            int index = EditorGUI.Popup(position, _popupLabel, -1, _typeLabels);
+            int index = EditorGUI.Popup(position, GUIContent.none, -1, _typeLabels);
 
             // invalid or special case <none>
             if (index <= 0 || index > _typeLabels.Length) return null;
@@ -71,8 +70,6 @@ namespace Kott.Configs
                 .Select(t => new GUIContent(t.Name))
                 .Prepend(new GUIContent("<none>"))
                 .ToArray();
-
-            _popupLabel = new GUIContent(type.Name);
         }
 
         private void CreateSubAsset(SerializedProperty property, SerializedProperty templateProperty, Type type)
