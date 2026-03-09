@@ -98,7 +98,6 @@ namespace Kott.Configs
 
             string assetPath = AssetDatabase.GetAssetPath(asset);
             AssetDatabase.AddObjectToAsset(subAsset, assetPath);
-            AssetDatabase.ImportAsset(assetPath);
 
             templateProperty.objectReferenceValue = subAsset;
         }
