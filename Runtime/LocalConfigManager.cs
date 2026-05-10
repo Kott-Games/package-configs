@@ -1,35 +1,33 @@
-using Kott.Scopes;
-using Kott.Utilities.Progress;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Kott.Scopes;
+using Kott.Utilities.Progress;
 using UnityEngine;
 
 namespace Kott.Configs
 {
-    public class LocalConfigManager : Manager, IConfigManager
+    public sealed class LocalConfigManager : Manager, IConfigManager
     {
         [SerializeField] private ConfigStructure _container;
 
         private Dictionary<Type, IList> _templateCollections;
         private Dictionary<string, Template> _templateLookup;
 
-        public override IEnumerator Initialize(IProgress<ProgressReport> progress)
+        public IEnumerator Initialize(IProgress<ProgressReport> progress)
         {
-            yield return base.Initialize(progress);
+            _templateCollections = new Dictionary<Type, IList>();
+            _templateLookup = new Dictionary<string, Template>();
 
-            _templateCollections = new();
-            _templateLookup = new();
-
-            progress.Report(new(0f, "Collect templates"));
+            progress.Report(new ProgressReport(0f, "Collect templates"));
             for (int i = 0; i < _container.Groups.Count; i++)
             {
-                var group = _container.Groups[i];
+                ConfigStructure.Group group = _container.Groups[i];
                 Type type = Type.GetType(group.TypeString);
                 Array array = Array.CreateInstance(type, group.MatchingTemplates.Count);
                 _templateCollections.Add(type, array);
 
-                progress.Report(new(
+                progress.Report(new ProgressReport(
                     (float)i / _container.Groups.Count * 0.9f,
                     $"Collect templates\n{type.FullName}"));
                 yield return null;

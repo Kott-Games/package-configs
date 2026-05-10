@@ -77,9 +77,8 @@ namespace Kott.Configs
         private Dictionary<Type, IList> _templateCollections;
         private Dictionary<string, Template> _templateLookup;
 
-        public override IEnumerator Initialize(IProgress<ProgressReport> progress)
+        public IEnumerator Initialize(IProgress<ProgressReport> progress)
         {
-            yield return base.Initialize(progress);
             yield return new WaitForTaskWithProgress(InitializeRemote(), progress);
         }
 
