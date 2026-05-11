@@ -14,7 +14,7 @@ namespace Kott.Configs
         private Dictionary<Type, IList> _templateCollections;
         private Dictionary<string, Template> _templateLookup;
 
-        public IEnumerator Initialize(IProgress<ProgressReport> progress)
+        public override IEnumerator Initialize(IProgress<ProgressReport> progress)
         {
             _templateCollections = new Dictionary<Type, IList>();
             _templateLookup = new Dictionary<string, Template>();

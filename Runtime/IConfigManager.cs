@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Kott.Configs
 {
-    public interface IConfigManager : IManagerContract<IConfigManager>
+    public interface IConfigManager : ISingletonContract<IConfigManager>
     {
         IReadOnlyList<T> GetCollection<T>() where T : Template;
         T GetTemplate<T>(string key) where T : Template;
