@@ -19,7 +19,7 @@ namespace Kott.Configs
             _templateCollections = new Dictionary<Type, IList>();
             _templateLookup = new Dictionary<string, Template>();
 
-            progress.Report(new ProgressReport(0f, "Collect templates"));
+            progress?.Report(new ProgressReport(0f, "Collect templates"));
             for (int i = 0; i < _container.Groups.Count; i++)
             {
                 ConfigStructure.Group group = _container.Groups[i];
@@ -27,7 +27,7 @@ namespace Kott.Configs
                 Array array = Array.CreateInstance(type, group.MatchingTemplates.Count);
                 _templateCollections.Add(type, array);
 
-                progress.Report(new ProgressReport(
+                progress?.Report(new ProgressReport(
                     (float)i / _container.Groups.Count * 0.9f,
                     $"Collect templates\n{type.FullName}"));
                 yield return null;
