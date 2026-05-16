@@ -1,11 +1,16 @@
+using System;
 using Kott.Utilities.JsonConverters;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.RemoteConfig.Editor;
+using Unity.Services.Core.Editor.Environments;
 using UnityEditor;
+using UnityEditor.AddressableAssets;
+using UnityEditor.AddressableAssets.Settings;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Kott.Configs
 {
@@ -17,7 +22,12 @@ namespace Kott.Configs
         private void OnGUI()
         {
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Pull Configs")) PullConfigs();
+            using (new EditorGUI.DisabledScope(true))
+            {
+                // pulling in the editor is stupid if i think about it
+                // we only ever change configs in the editor, so we only really need to push, not pull
+                if (GUILayout.Button("Pull Configs")) PullConfigs();
+            }
             if (GUILayout.Button("Push Configs")) PushConfigs();
             EditorGUILayout.EndHorizontal();
 
@@ -33,23 +43,21 @@ namespace Kott.Configs
             Debug.Log($"[Config] Pull Configs");
 
             string projectId = CloudProjectSettings.projectId;
+            string environmentId = EnvironmentsApi.Instance.ActiveEnvironmentId.ToString();
+            
+            // RemoteConfigWebApiClient.fetchDefaultEnvironmentFinished += FetchDefaultEnvironmentFinished;
+            // RemoteConfigWebApiClient.FetchDefaultEnvironment(projectId);
+            
+            RemoteConfigWebApiClient.fetchConfigsFinished += FetchConfigsFinished;
+            RemoteConfigWebApiClient.FetchConfigs(projectId, environmentId);
 
-            RemoteConfigWebApiClient.fetchEnvironmentsFinished += FetchEnvironmentsFinished;
-            RemoteConfigWebApiClient.FetchEnvironments(projectId);
-
-            void FetchEnvironmentsFinished(JArray environments)
+            void FetchDefaultEnvironmentFinished(string environmentId)
             {
-                RemoteConfigWebApiClient.fetchEnvironmentsFinished -= FetchEnvironmentsFinished;
-                Debug.Log($"[Config] FetchEnvironmentsFinished: {environments}");
-
-                JToken targetEnvironment = environments.FirstOrDefault(env => env["name"].Value<string>() == "development");
-                if (targetEnvironment != null)
-                {
-                    string environmentId = targetEnvironment["id"].Value<string>();
-
-                    RemoteConfigWebApiClient.fetchConfigsFinished += FetchConfigsFinished;
-                    RemoteConfigWebApiClient.FetchConfigs(projectId, environmentId);
-                }
+                RemoteConfigWebApiClient.fetchDefaultEnvironmentFinished -= FetchDefaultEnvironmentFinished;
+                Debug.Log($"[Config] FetchDefaultEnvironmentFinished: {environmentId}");
+                
+                RemoteConfigWebApiClient.fetchConfigsFinished += FetchConfigsFinished;
+                RemoteConfigWebApiClient.FetchConfigs(projectId, environmentId);
             }
 
             void FetchConfigsFinished(JObject configs)
@@ -69,10 +77,11 @@ namespace Kott.Configs
                     }
                 }
 
-                RCJsonAPI.WriteToConfigAsset("json_config", entries);
+                DeserializeConfigs(entries);
+                // RCJsonAPI.WriteToConfigAsset("json_config", entries);
             }
         }
-
+        
         [MenuItem("Tools/Configs/Push #F6", priority = 11)]
         private static void PushConfigs()
         {
@@ -91,36 +100,44 @@ namespace Kott.Configs
 
         private static void UpdateRemoteData()
         {
-            // TODO make remote config push work again
+            JObject entries = SerializeConfigs();
+            RCJsonAPI.WriteToConfigAsset("json_config", entries);
+        }
 
-            JObject entries = new JObject();
-
+        private static JObject SerializeConfigs()
+        {
             JsonSerializerSettings settings = new()
             {
+                Formatting = Formatting.Indented,
+                TypeNameHandling = TypeNameHandling.Auto,
+                DefaultValueHandling = DefaultValueHandling.Ignore,
+                Converters = new List<JsonConverter>()
+                {
+                    new Vector2Converter(),
+                    new Vector2IntConverter(),
+                    new Vector3Converter(),
+                    new Vector3IntConverter(),
+                    new Vector4Converter(),
+                    new QuaternionConverter(),
+                    new ColorConverter(),
+                    new RectConverter(),
+                    new RectIntConverter(),
+                    new BoundsConverter(),
+                    new BoundsIntConverter(),
+                    new DictionaryArrayConverter(),
+                    new TemplateReferenceConverter(),
+                    new TemplateAssetReferenceConverter(),
+                },
             };
 
             JsonSerializer serializer = JsonSerializer.CreateDefault(settings);
-            serializer.Converters.Add(new Vector2Converter());
-            serializer.Converters.Add(new Vector2IntConverter());
-            serializer.Converters.Add(new Vector3Converter());
-            serializer.Converters.Add(new Vector3IntConverter());
-            serializer.Converters.Add(new Vector4Converter());
-            serializer.Converters.Add(new QuaternionConverter());
-            serializer.Converters.Add(new ColorConverter());
-            serializer.Converters.Add(new RectConverter());
-            serializer.Converters.Add(new RectIntConverter());
-            serializer.Converters.Add(new BoundsConverter());
-            serializer.Converters.Add(new BoundsIntConverter());
-            serializer.Converters.Add(new TemplateReferenceConverter());
-            serializer.Converters.Add(new TemplateAssetReferenceConverter());
 
-            ConfigStructure configStructure = ConfigEditorUtility.GetConfigDataCache<ConfigStructure>();
-
-            Dictionary<string, JArray> templateArrays = new();
-
+            JObject entries = new JObject();
             JArray jGroups = new();
             entries.Add("template_groups", jGroups);
-
+            Dictionary<string, JArray> templateArrays = new();
+            
+            ConfigStructure configStructure = ConfigEditorUtility.GetConfigDataCache<ConfigStructure>();
             foreach (ConfigStructure.Group group in configStructure.Groups)
             {
                 JObject jGroup = new();
@@ -152,7 +169,138 @@ namespace Kott.Configs
                 }
             }
 
-            RCJsonAPI.WriteToConfigAsset("json_config", entries);
+            return entries;
+        }
+
+        private static void DeserializeConfigs(JObject entries)
+        {
+            TemplateReferenceConverter templateReferenceConverter = new TemplateReferenceConverter();
+            TemplateAssetReferenceConverter templateAssetReferenceConverter = new TemplateAssetReferenceConverter();
+
+            JsonSerializerSettings settings = new()
+            {
+                Formatting = Formatting.Indented,
+                TypeNameHandling = TypeNameHandling.Auto,
+                DefaultValueHandling = DefaultValueHandling.Ignore,
+                Converters = new List<JsonConverter>()
+                {
+                    new Vector2Converter(),
+                    new Vector2IntConverter(),
+                    new Vector3Converter(),
+                    new Vector3IntConverter(),
+                    new Vector4Converter(),
+                    new QuaternionConverter(),
+                    new ColorConverter(),
+                    new RectConverter(),
+                    new RectIntConverter(),
+                    new BoundsConverter(),
+                    new BoundsIntConverter(),
+                    new DictionaryArrayConverter(),
+                    templateReferenceConverter,
+                    templateAssetReferenceConverter,
+                },
+            };
+
+            JsonSerializer serializer = JsonSerializer.CreateDefault(settings);
+            
+            HashSet<string> requiredFolders = new();
+            HashSet<string> groupIds = new();
+            Dictionary<string, (Template template, string assetPath)> templates = new();
+
+            JArray jGroups = entries["template_groups"] as JArray;
+            foreach (JObject jGroup in jGroups)
+            {
+                string groupId = jGroup.Value<string>("id");
+                if (!groupIds.Add(groupId)) continue;
+                
+                JArray jTemplates = entries[groupId] as JArray;
+                if (jTemplates == null || jTemplates.Count == 0) continue;
+
+                Debug.Log($"[Config] Deserializing group {groupId}");
+
+                string groupFolder = $"Assets/Configs/{groupId}";
+                requiredFolders.Add(groupFolder);
+                
+                if (!AssetDatabase.IsValidFolder(groupFolder))
+                {
+                    AssetDatabase.CreateFolder("Assets/Configs", groupId);
+                }
+
+                foreach (JObject jTemplate in jTemplates)
+                {
+                    string templateId = jTemplate.Value<string>("ID");
+                    string typeString = jTemplate.Value<string>("$type");
+                    
+                    // remove group id prefix
+                    string shortId = templateId.Substring(groupId.Length + 1);
+                    
+                    Debug.Log($"[Config]   Deserializing template {shortId} with type {typeString}");
+
+                    Type type = Type.GetType(typeString);
+
+                    string assetPath = $"Assets/Configs/{groupId}/{shortId}.asset";
+                    Template template = AssetDatabase.LoadAssetAtPath<Template>(assetPath);
+                    if (!template || !template.GetType().IsEquivalentTo(type))
+                    {
+                        template = ScriptableObject.CreateInstance(type) as Template;
+                    }
+                    
+                    serializer.Populate(jTemplate.CreateReader(), template);
+                    templates.Add(templateId, (template, assetPath));
+                }
+            }
+            
+            foreach ((string id, List<ITemplateReference> references) in templateReferenceConverter.References)
+            {
+                Template template = templates.GetValueOrDefault(id).template;
+                foreach (ITemplateReference reference in references)
+                {
+                    reference.Template = template;
+                }
+            }
+
+            List<AddressableAssetEntry> addressableAssetEntries = new();
+            AddressableAssetSettingsDefaultObject.Settings.GetAllAssets(addressableAssetEntries, true);
+            Dictionary<string, Object> addressableAssetLookup = addressableAssetEntries
+                .ToDictionary(e => e.address, e => e.MainAsset);
+
+            foreach ((string id, List<ITemplateAssetReference> references) in templateAssetReferenceConverter.References)
+            {
+                Object asset = addressableAssetLookup.GetValueOrDefault(id);
+                foreach (ITemplateAssetReference reference in references)
+                {
+                    reference.Asset = asset;
+                    reference.Address = id;
+                }
+            }
+
+            string[] subFolders = AssetDatabase.GetSubFolders("Assets/Configs");
+            
+            HashSet<string> existingPaths = new(AssetDatabase.FindAssets("t:Template", subFolders).Select(AssetDatabase.GUIDToAssetPath));
+            HashSet<string> requiredPaths = new(templates.Select(p => p.Value.assetPath));
+            
+            HashSet<string> deletePaths = new(existingPaths);
+            deletePaths.ExceptWith(requiredPaths);
+            
+            foreach (string path in deletePaths)
+            {
+                // Debug.Log($"Delete Asset {path}");
+                AssetDatabase.DeleteAsset(path);
+            }
+            
+            foreach (var pair in templates)
+            {
+                // Debug.Log($"Create Asset {pair.Value.assetPath}");
+                AssetDatabase.CreateAsset(pair.Value.template, pair.Value.assetPath);
+            }
+            
+            HashSet<string> deleteFolders = new(subFolders);
+            deleteFolders.ExceptWith(requiredFolders);
+            foreach (string path in deleteFolders)
+            {
+                // Debug.Log($"Delete Folder {path}");
+                AssetDatabase.DeleteAsset(path);
+            }
         }
     }
 }

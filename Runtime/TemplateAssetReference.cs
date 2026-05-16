@@ -5,7 +5,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace Kott.Configs
 {
-    public delegate void TemplateAssetReadyDelegate<TAsset>(TAsset asset);
+    public delegate void TemplateAssetReadyDelegate<in TAsset>(TAsset asset);
 
     [Serializable]
     public class TemplateAssetReference<TAsset> : ITemplateAssetReference
@@ -15,7 +15,11 @@ namespace Kott.Configs
         [SerializeField] private TAsset _asset;
         [SerializeField] private string _address;
 
-        UnityEngine.Object ITemplateAssetReference.Asset => _asset;
+        UnityEngine.Object ITemplateAssetReference.Asset
+        {
+            get => _asset;
+            set => _asset = value as TAsset;
+        }
 
         public string Address
         {

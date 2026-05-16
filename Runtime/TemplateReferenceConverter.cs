@@ -1,19 +1,19 @@
-using Newtonsoft.Json;
 using System;
 
 namespace Kott.Configs
 {
-    public class TemplateReferenceConverter : JsonConverter<ITemplateReference>
+    public class TemplateReferenceConverter : StringReferenceConverter<ITemplateReference>
     {
-        public override ITemplateReference ReadJson(JsonReader reader, Type objectType, ITemplateReference existingValue, bool hasExistingValue, JsonSerializer serializer)
+        protected override string GetInstanceId(ITemplateReference instance)
         {
-            throw new NotImplementedException();
+            return instance.Template ? instance.Template.ID : null;
         }
 
-        public override void WriteJson(JsonWriter writer, ITemplateReference value, JsonSerializer serializer)
+        protected override ITemplateReference CreateInstance(Type type, string id)
         {
-            string id = value.Template ? value.Template.ID : null;
-            writer.WriteValue(id);
+            ITemplateReference instance = (ITemplateReference)Activator.CreateInstance(type);
+            instance.Template = null;
+            return instance;
         }
     }
 }

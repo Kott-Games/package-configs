@@ -5,8 +5,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using Kott.Utilities.JsonConverters;
+using Newtonsoft.Json.Linq;
+using Unity.Services.Authentication;
+using Unity.Services.Core;
 using Unity.Services.RemoteConfig;
+using UnityEditor;
 using UnityEngine;
 
 namespace Kott.Configs
@@ -35,45 +41,6 @@ namespace Kott.Configs
             public string[] schemaId;
         }
 
-        // private class ConfigItemRefConverter : JsonConverter<ITemplateRef>
-        // {
-        //     public struct ItemRefInfo
-        //     {
-        //         public ITemplateRef ItemRef;
-        //         public string GroupID;
-        //         public string ID;
-        //     }
-        // 
-        //     public List<ItemRefInfo> ItemRefInfos = new List<ItemRefInfo>();
-        // 
-        //     public override ITemplateRef ReadJson(JsonReader reader, Type objectType, ITemplateRef existingValue, bool hasExistingValue, JsonSerializer serializer)
-        //     {
-        //         if (existingValue == null)
-        //         {
-        //             existingValue = (ITemplateRef)Activator.CreateInstance(objectType);
-        //         }
-        // 
-        //         string info = serializer.Deserialize<string>(reader);
-        //         if (!string.IsNullOrEmpty(info))
-        //         {
-        //             string[] splitInfo = info.Split(':');
-        //             ItemRefInfos.Add(new ItemRefInfo()
-        //             {
-        //                 ItemRef = existingValue,
-        //                 GroupID = splitInfo[0],
-        //                 ID = splitInfo[1],
-        //             });
-        //         }
-        // 
-        //         return existingValue;
-        //     }
-        // 
-        //     public override void WriteJson(JsonWriter writer, ITemplateRef value, JsonSerializer serializer)
-        //     {
-        //         throw new NotImplementedException();
-        //     }
-        // }
-
         private Dictionary<Type, IList> _templateCollections;
         private Dictionary<string, Template> _templateLookup;
 
@@ -88,78 +55,101 @@ namespace Kott.Configs
             RuntimeConfig config = await RemoteConfigService.Instance.FetchConfigsAsync(
                 new UserAttributes(), new AppAttributes(), new FilterAttributes());
 
-            // ConfigItemRefConverter itemRefConverter = new ConfigItemRefConverter();
+            TemplateReferenceConverter templateReferenceConverter = new TemplateReferenceConverter();
+            TemplateAssetReferenceConverter templateAssetReferenceConverter = new TemplateAssetReferenceConverter();
 
-            JsonSerializer serializer = JsonSerializer.CreateDefault();
-            // serializer.Converters.Add(itemRefConverter);
-
-            string configDescriptionJson = config.GetJson("config_description", "{}");
-            TemplateDescription[] descriptions = null;
-            using (TextReader textReader = new StringReader(configDescriptionJson))
-            using (JsonReader jsonReader = new JsonTextReader(textReader))
+            JsonSerializerSettings settings = new()
             {
-                descriptions = serializer.Deserialize<TemplateDescription[]>(jsonReader);
-            }
-
+                Formatting = Formatting.Indented,
+                TypeNameHandling = TypeNameHandling.Auto,
+                DefaultValueHandling = DefaultValueHandling.Ignore,
+                Converters = new List<JsonConverter>()
+                {
+                    new Vector2Converter(),
+                    new Vector2IntConverter(),
+                    new Vector3Converter(),
+                    new Vector3IntConverter(),
+                    new Vector4Converter(),
+                    new QuaternionConverter(),
+                    new ColorConverter(),
+                    new RectConverter(),
+                    new RectIntConverter(),
+                    new BoundsConverter(),
+                    new BoundsIntConverter(),
+                    new DictionaryArrayConverter(),
+                    templateReferenceConverter,
+                    templateAssetReferenceConverter,
+                },
+            };
+            
+            JsonSerializer serializer = JsonSerializer.CreateDefault(settings);
+            
+            HashSet<string> groupIds = new();
+            
             _templateCollections = new();
             _templateLookup = new();
-
-            Dictionary<string, Type> groupMapping = new();
-
-            // collect templates
-            for (int i = 0; i < descriptions.Length; i++)
+            
+            JArray jGroups = GetConfigData(config, "template_groups");
+            foreach (JObject jGroup in jGroups)
             {
-                TemplateDescription templateDescription = descriptions[i];
+                string groupId = jGroup.Value<string>("id");
+                string groupTypeString = jGroup.Value<string>("type");
+                JArray jTemplatesInGroup =  jGroup["templates"] as JArray;
+                
+                Type groupType = Type.GetType(groupTypeString);
+                Array array = jTemplatesInGroup.Values<string>().ToArray();
+                _templateCollections.Add(groupType, array);
+                
+                if (!groupIds.Add(groupId)) continue;
+                
+                JArray jTemplates = GetConfigData(config, groupId);
+                if (jTemplates == null || jTemplates.Count == 0) continue;
 
-                groupMapping.Add(templateDescription.GroupID, templateDescription.TemplateType);
-
-                string json = config.GetJson(templateDescription.GroupID, "[]");
-                Type listType = typeof(List<>).MakeGenericType(templateDescription.TemplateType);
-
-                using (TextReader textReader = new StringReader(json))
-                using (JsonReader jsonReader = new JsonTextReader(textReader))
+                foreach (JObject jTemplate in jTemplates)
                 {
-                    IList items = (IList)serializer.Deserialize(jsonReader, listType);
-                    _templateCollections.Add(templateDescription.TemplateType, items);
+                    string templateId = jTemplate.Value<string>("ID");
+                    string typeString = jTemplate.Value<string>("$type");
+                    
+                    Type type = Type.GetType(typeString);
 
-                    for (int j = 0; j < items.Count; j++)
-                    {
-                        Template template = (Template)items[j];
-                        _templateLookup[template.ID] = template;
-                    }
-
-                    for (int j = 0; j < templateDescription.ParentGroupIDs.Count; j++)
-                    {
-                        string inherited = templateDescription.ParentGroupIDs[j];
-                        Type type = groupMapping[inherited];
-                        IList list = _templateCollections[type];
-
-                        for (int k = 0; k < items.Count; k++)
-                            list.Add(items[k]);
-                    }
+                    Template template = ScriptableObject.CreateInstance(type) as Template;
+                    serializer.Populate(jTemplate.CreateReader(), template);
+                    _templateLookup.Add(templateId, template);
                 }
             }
 
-            // convert lists to arrays
-            for (int i = 0; i < descriptions.Length; i++)
+            foreach (Type type in _templateCollections.Keys.ToList())
             {
-                TemplateDescription templateDescription = descriptions[i];
-                IList list = _templateCollections[templateDescription.TemplateType];
-                Array array = Array.CreateInstance(templateDescription.TemplateType, list.Count);
-                list.CopyTo(array, 0);
-                _templateCollections[templateDescription.TemplateType] = array;
+                string[] templateIds = (string[])_templateCollections[type];
+                Array templates = Array.CreateInstance(type, templateIds.Length);
+                _templateCollections[type] = templates;
+                for (int i = 0; i < templateIds.Length; i++)
+                {
+                    Template template = _templateLookup[templateIds[i]];
+                    templates.SetValue(template, i);
+                }
             }
+            
+            foreach ((string id, List<ITemplateReference> references) in templateReferenceConverter.References)
+            {
+                Template template = _templateLookup.GetValueOrDefault(id);
+                foreach (ITemplateReference reference in references)
+                {
+                    reference.Template = template;
+                }
+            }
+        }
 
-            // resolve template references
-            // foreach (ConfigItemRefConverter.ItemRefInfo itemRefInfo in itemRefConverter.ItemRefInfos)
-            // {
-            //     Type type = groupMapping[itemRefInfo.GroupID];
-            //     Template item = _templateCollections[type]
-            //         .Cast<Template>()
-            //         .FirstOrDefault(i => i.ID == itemRefInfo.ID);
-            // 
-            //     itemRefInfo.ItemRef.Asset = item;
-            // }
+        private JArray GetConfigData(RuntimeConfig config, string key)
+        {
+            string configDescriptionJson = config.GetJson(key, "[]");
+            using (TextReader textReader = new StringReader(configDescriptionJson))
+            using (JsonReader jsonReader = new JsonTextReader(textReader))
+            {
+                var array = JToken.ReadFrom(jsonReader) as JArray;
+                Debug.Log(array.ToString(Formatting.Indented));
+                return array;
+            }
         }
 
         private void OnConfigFetchCompleted(ConfigResponse response)

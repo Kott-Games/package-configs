@@ -12,7 +12,7 @@ namespace Kott.Configs
         Template ITemplateReference.Template
         {
             get => _template;
-            set => _template = (TTemplate)value;
+            set => _template = value as TTemplate;
         }
 
         public TTemplate Template => _template;
