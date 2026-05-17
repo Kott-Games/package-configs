@@ -98,14 +98,7 @@ namespace Kott.Configs
             foreach (Template template in ConfigEditorUtility.GetTemplatesAll())
             {
                 CombineReferences(template, templateReferences);
-
                 TemplateReferenceCollection referenceData = templateReferences[template];
-                template.AssetAddressesCombined = referenceData.TemplateAssetReferencesCombined
-                    .Where(assetRef => assetRef.Asset)
-                    .Select(assetRef => assetRef.Address)
-                    .ToArray();
-
-                EditorUtility.SetDirty(template);
 
                 // basic reference loop detection
                 if (referenceData.TemplateReferencesCombined.Any(t => t.Template == template))
@@ -176,11 +169,31 @@ namespace Kott.Configs
             }
 
             ConfigStructure configStructure = ConfigEditorUtility.GetConfigDataCache<ConfigStructure>();
+            ConfigTypeMapping configTypeMapping = ConfigEditorUtility.GetConfigDataCache<ConfigTypeMapping>();
+            RuntimeConfigData runtimeConfigData = ConfigEditorUtility.GetConfigDataCache<RuntimeConfigData>();
 
             GroupComparer groupComparer = new GroupComparer();
             configStructure.Groups = groupStructures.Values
                 .OrderBy(group => group, groupComparer)
                 .ToList();
+            
+            configTypeMapping.TypeGroups.Clear();
+            runtimeConfigData.Templates.Clear();
+            
+            foreach (ConfigStructure.Group group in configStructure.Groups)
+            {
+                Type type = Type.GetType(group.TypeString);
+                
+                ConfigTypeMapping.Group typeGroup = new();
+                configTypeMapping.TypeGroups.Add(typeGroup);
+
+                typeGroup.TypeIdentifier = type.Name.Replace("Template", null);
+                
+                typeGroup.TypeString = group.TypeString;
+                typeGroup.BaseTypeStrings.AddRange(group.BaseTypeStrings);
+                
+                runtimeConfigData.Templates.AddRange(group.Templates);
+            }
 
             EditorUtility.SetDirty(configStructure);
         }

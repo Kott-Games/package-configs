@@ -1,7 +1,5 @@
-﻿using Kott.Utilities;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using UnityEngine;
-using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace Kott.Configs
 {
@@ -9,12 +7,5 @@ namespace Kott.Configs
     {
         [JsonProperty(Order = -9001)]
         public string ID;
-
-        public string[] AssetAddressesCombined;
-
-        public AsyncOperationHandle LoadAssets()
-        {
-            return AddressablesUtility.LoadAssets(AssetAddressesCombined);
-        }
     }
 }

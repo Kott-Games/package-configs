@@ -5,151 +5,118 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using Kott.Utilities.JsonConverters;
 using Newtonsoft.Json.Linq;
-using Unity.Services.Authentication;
-using Unity.Services.Core;
 using Unity.Services.RemoteConfig;
-using UnityEditor;
 using UnityEngine;
 
 namespace Kott.Configs
 {
     public class RemoteConfigManager : Manager, IConfigManager
     {
-        private struct UserAttributes
-        {
+        private struct userAttributes {
             // Optionally declare variables for any custom user attributes:
             public bool expansionFlag;
         }
 
-        private struct AppAttributes
-        {
+        private struct appAttributes {
             // Optionally declare variables for any custom app attributes:
             public int level;
             public int score;
             public string appVersion;
         }
 
-        private struct FilterAttributes
-        {
+        private struct filterAttributes {
             // Optionally declare variables for attributes to filter on any of following parameters:
             public string[] key;
             public string[] type;
             public string[] schemaId;
         }
-
-        private Dictionary<Type, IList> _templateCollections;
-        private Dictionary<string, Template> _templateLookup;
+        
+        [SerializeField] private ConfigTypeMapping _configTypeMapping;
+        
+        private readonly Dictionary<Type, IList> _templateCollections = new();
+        private readonly Dictionary<string, Template> _templateLookup = new();
 
         public override IEnumerator Initialize(IProgress<ProgressReport> progress)
         {
-            yield return new WaitForTaskWithProgress(InitializeRemote(), progress);
+            _templateCollections.Clear();
+            _templateLookup.Clear();
+            
+            SubProgress subProgress = new(progress);
+
+            subProgress.Start = new(0f, "Fetch Remote Configs");
+            subProgress.Scale = 0.5f;
+            
+            RuntimeConfigData configData = ScriptableObject.CreateInstance<RuntimeConfigData>();
+            yield return FetchRemoteConfigs(subProgress, configData);
+
+            subProgress.Start = new(0.5f, "Extract Configs");
+            subProgress.Scale = 0.5f;
+            
+            yield return ExtractConfigData(subProgress, configData);
         }
 
-        private async Task InitializeRemote()
+        private IEnumerator FetchRemoteConfigs(IProgress<ProgressReport> progress, RuntimeConfigData configData)
         {
+            SubProgress subProgress = new(progress);
+
+            subProgress.Start = new(0f, "Fetch Remote Configs");
+            subProgress.Scale = 0.5f;
+            
             RemoteConfigService.Instance.FetchCompleted += OnConfigFetchCompleted;
-            RuntimeConfig config = await RemoteConfigService.Instance.FetchConfigsAsync(
-                new UserAttributes(), new AppAttributes(), new FilterAttributes());
-
-            TemplateReferenceConverter templateReferenceConverter = new TemplateReferenceConverter();
-            TemplateAssetReferenceConverter templateAssetReferenceConverter = new TemplateAssetReferenceConverter();
-
-            JsonSerializerSettings settings = new()
-            {
-                Formatting = Formatting.Indented,
-                TypeNameHandling = TypeNameHandling.Auto,
-                DefaultValueHandling = DefaultValueHandling.Ignore,
-                Converters = new List<JsonConverter>()
-                {
-                    new Vector2Converter(),
-                    new Vector2IntConverter(),
-                    new Vector3Converter(),
-                    new Vector3IntConverter(),
-                    new Vector4Converter(),
-                    new QuaternionConverter(),
-                    new ColorConverter(),
-                    new RectConverter(),
-                    new RectIntConverter(),
-                    new BoundsConverter(),
-                    new BoundsIntConverter(),
-                    new DictionaryArrayConverter(),
-                    templateReferenceConverter,
-                    templateAssetReferenceConverter,
-                },
-            };
+            Task<RuntimeConfig> fetchConfigsAsync = RemoteConfigService.Instance
+                .FetchConfigsAsync(new userAttributes(), new appAttributes(), new filterAttributes());
+            yield return new WaitForTaskWithProgress(fetchConfigsAsync, subProgress);
             
-            JsonSerializer serializer = JsonSerializer.CreateDefault(settings);
-            
-            HashSet<string> groupIds = new();
-            
-            _templateCollections = new();
-            _templateLookup = new();
-            
-            JArray jGroups = GetConfigData(config, "template_groups");
-            foreach (JObject jGroup in jGroups)
-            {
-                string groupId = jGroup.Value<string>("id");
-                string groupTypeString = jGroup.Value<string>("type");
-                JArray jTemplatesInGroup =  jGroup["templates"] as JArray;
-                
-                Type groupType = Type.GetType(groupTypeString);
-                Array array = jTemplatesInGroup.Values<string>().ToArray();
-                _templateCollections.Add(groupType, array);
-                
-                if (!groupIds.Add(groupId)) continue;
-                
-                JArray jTemplates = GetConfigData(config, groupId);
-                if (jTemplates == null || jTemplates.Count == 0) continue;
+            RuntimeConfig config = RemoteConfigService.Instance.appConfig;
 
-                foreach (JObject jTemplate in jTemplates)
-                {
-                    string templateId = jTemplate.Value<string>("ID");
-                    string typeString = jTemplate.Value<string>("$type");
-                    
-                    Type type = Type.GetType(typeString);
-
-                    Template template = ScriptableObject.CreateInstance(type) as Template;
-                    serializer.Populate(jTemplate.CreateReader(), template);
-                    _templateLookup.Add(templateId, template);
-                }
-            }
-
-            foreach (Type type in _templateCollections.Keys.ToList())
-            {
-                string[] templateIds = (string[])_templateCollections[type];
-                Array templates = Array.CreateInstance(type, templateIds.Length);
-                _templateCollections[type] = templates;
-                for (int i = 0; i < templateIds.Length; i++)
-                {
-                    Template template = _templateLookup[templateIds[i]];
-                    templates.SetValue(template, i);
-                }
-            }
-            
-            foreach ((string id, List<ITemplateReference> references) in templateReferenceConverter.References)
-            {
-                Template template = _templateLookup.GetValueOrDefault(id);
-                foreach (ITemplateReference reference in references)
-                {
-                    reference.Template = template;
-                }
-            }
-        }
-
-        private JArray GetConfigData(RuntimeConfig config, string key)
-        {
-            string configDescriptionJson = config.GetJson(key, "[]");
-            using (TextReader textReader = new StringReader(configDescriptionJson))
+            string jTemplatesString = config.GetJson("configTemplates", "[]");
+            using (TextReader textReader = new StringReader(jTemplatesString))
             using (JsonReader jsonReader = new JsonTextReader(textReader))
             {
-                var array = JToken.ReadFrom(jsonReader) as JArray;
-                Debug.Log(array.ToString(Formatting.Indented));
-                return array;
+                subProgress.Start = new(0.5f, "Read Configs");
+                subProgress.Scale = 0.5f;
+                
+                Task<JToken> readTokenAsync = JToken.ReadFromAsync(jsonReader);
+                yield return new WaitForTaskWithProgress(readTokenAsync, subProgress);
+                
+                JArray jTemplates = readTokenAsync.Result as JArray;
+                Debug.Log(jTemplates.ToString(Formatting.Indented));
+                
+                List<Template> templates = ConfigSerializationUtility.Deserialize(_configTypeMapping, jTemplates);
+                configData.Templates.AddRange(templates);
             }
+        }
+
+        private IEnumerator ExtractConfigData(IProgress<ProgressReport> progress, RuntimeConfigData configData)
+        {
+            Dictionary<Type, List<Template>> templateGroupCollections = new();
+            
+            foreach (Template template in configData.Templates)
+            {
+                _templateLookup.Add(template.ID, template);
+                Type type = template.GetType();
+                List<Template> groupTemplates = templateGroupCollections.GetValueOrDefault(type) ?? new List<Template>();
+                templateGroupCollections[type] = groupTemplates;
+                groupTemplates.Add(template);
+            }
+            
+            foreach (ConfigTypeMapping.Group typeGroup in _configTypeMapping.TypeGroups)
+            {
+                Type type = Type.GetType(typeGroup.TypeString);
+                List<Template> groupTemplates = templateGroupCollections.GetValueOrDefault(type);
+                Array groupTemplatesArray = Array.CreateInstance(type, groupTemplates?.Count ?? 0);
+                _templateCollections[type] = groupTemplatesArray;
+                if (groupTemplates == null) continue;
+                for (var i = 0; i < groupTemplates.Count; i++)
+                {
+                    groupTemplatesArray.SetValue(groupTemplates[i], i);
+                }
+            }
+            
+            progress?.Report(new ProgressReport(1f, null));
+            yield break;
         }
 
         private void OnConfigFetchCompleted(ConfigResponse response)
