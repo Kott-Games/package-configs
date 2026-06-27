@@ -64,9 +64,14 @@ namespace Kott.Configs
             subProgress.Start = new(0f, "Fetch Remote Configs");
             subProgress.Scale = 0.5f;
             
+            filterAttributes myFilters = new()
+            {
+                key = new[] { ConfigVersionUtility.GetTemplateDataKey() },
+            };
+
             RemoteConfigService.Instance.FetchCompleted += OnConfigFetchCompleted;
             Task<RuntimeConfig> fetchConfigsAsync = RemoteConfigService.Instance
-                .FetchConfigsAsync(new userAttributes(), new appAttributes(), new filterAttributes());
+                .FetchConfigsAsync(new userAttributes(), new appAttributes(), myFilters);
             yield return new WaitForTaskWithProgress(fetchConfigsAsync, subProgress);
             
             RuntimeConfig config = RemoteConfigService.Instance.appConfig;

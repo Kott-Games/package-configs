@@ -39,7 +39,7 @@ namespace Kott.Configs
             RuntimeConfigData runtimeConfigData = ConfigEditorUtility.GetConfigDataCache<RuntimeConfigData>();
             
             JArray jTemplates = ConfigSerializationUtility.Serialize(configTypeMapping, runtimeConfigData.Templates);
-            JObject entries = new(new JProperty("configTemplates", jTemplates));
+            JObject entries = new(new JProperty(ConfigVersionUtility.GetTemplateDataKey(), jTemplates));
             
             RCJsonAPI.WriteToConfigAsset("json_config", entries);
         }
