@@ -196,6 +196,8 @@ namespace Kott.Configs
             }
 
             EditorUtility.SetDirty(configStructure);
+            EditorUtility.SetDirty(configTypeMapping);
+            EditorUtility.SetDirty(runtimeConfigData);
         }
 
         private static void CollectMatchingTypes(Type type, HashSet<Type> matchingTypes)
