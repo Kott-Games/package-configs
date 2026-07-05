@@ -13,7 +13,6 @@ namespace Kott.Configs
         {
             ITemplateAssetReference instance = (ITemplateAssetReference)Activator.CreateInstance(type);
             instance.Address = id;
-            instance.Asset = null;
             return instance;
         }
     }
