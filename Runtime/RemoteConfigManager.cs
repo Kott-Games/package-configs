@@ -96,15 +96,30 @@ namespace Kott.Configs
 
         private IEnumerator ExtractConfigData(IProgress<ProgressReport> progress, RuntimeConfigData configData)
         {
+            Dictionary<Type, List<Template>> templateGroupCollectionsBase = new();
             Dictionary<Type, List<Template>> templateGroupCollections = new();
             
             foreach (Template template in configData.Templates)
             {
                 _templateLookup.Add(template.ID, template);
                 Type type = template.GetType();
-                List<Template> groupTemplates = templateGroupCollections.GetValueOrDefault(type) ?? new List<Template>();
-                templateGroupCollections[type] = groupTemplates;
+                List<Template> groupTemplates = templateGroupCollectionsBase.GetValueOrDefault(type) ?? new List<Template>();
+                templateGroupCollectionsBase[type] = groupTemplates;
                 groupTemplates.Add(template);
+            }
+            
+            foreach (ConfigTypeMapping.Group typeGroup in _configTypeMapping.TypeGroups)
+            {
+                Type type = Type.GetType(typeGroup.TypeString);
+                List<Template> groupTemplatesBase = templateGroupCollectionsBase.GetValueOrDefault(type);
+                if (groupTemplatesBase == null) continue;
+                foreach (string baseTypeString in typeGroup.BaseTypeStrings)
+                {
+                    Type baseType = Type.GetType(baseTypeString);
+                    List<Template> groupTemplates = templateGroupCollections.GetValueOrDefault(baseType) ?? new List<Template>();
+                    templateGroupCollections[baseType] = groupTemplates;
+                    groupTemplates.AddRange(groupTemplatesBase);
+                }
             }
             
             foreach (ConfigTypeMapping.Group typeGroup in _configTypeMapping.TypeGroups)
