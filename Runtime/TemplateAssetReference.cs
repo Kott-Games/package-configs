@@ -5,34 +5,31 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace Kott.Configs
 {
-    public delegate void TemplateAssetReadyDelegate<in TAsset>(TAsset asset);
-
     [Serializable]
     public class TemplateAssetReference<TAsset> : ITemplateAssetReference
         where TAsset : UnityEngine.Object
     {
-#if UNITY_EDITOR
-        [SerializeField] private TAsset _asset;
         [SerializeField] private string _address;
 
+        string ITemplateAssetReference.Address
+        {
+            get => _address;
+            set => _address = value;
+        }
+        
+#if UNITY_EDITOR
+        [SerializeField] private TAsset _asset;
+        
         UnityEngine.Object ITemplateAssetReference.Asset
         {
             get => _asset;
             set => _asset = value as TAsset;
         }
-
-        public string Address
-        {
-            get => _address;
-            set => _address = value;
-        }
-#else
-        public string Address { get; set; }
 #endif
 
-        public AsyncOperationHandle<TAsset> LoadAssetAsync(TemplateAssetReadyDelegate<TAsset> assetReady)
+        public AsyncOperationHandle<TAsset> LoadAssetAsync(Action<TAsset> assetReady)
         {
-            AsyncOperationHandle<TAsset> handle = Addressables.LoadAssetAsync<TAsset>(Address);
+            AsyncOperationHandle<TAsset> handle = Addressables.LoadAssetAsync<TAsset>(_address);
 
             if (handle.IsDone)
             {
