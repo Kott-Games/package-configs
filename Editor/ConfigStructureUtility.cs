@@ -1,9 +1,9 @@
-using Kott.Configs.Attributes;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Kott.Configs.Attributes;
 using UnityEditor;
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings;
@@ -152,6 +152,7 @@ namespace Kott.Configs
                                 groupStructure.BaseTypeStrings.Add(type.AssemblyQualifiedName);
                                 type = type.BaseType;
                             }
+
                             groupStructure.BaseTypeStrings.Add(typeof(Template).AssemblyQualifiedName);
                         }
                     }
@@ -176,22 +177,22 @@ namespace Kott.Configs
             configStructure.Groups = groupStructures.Values
                 .OrderBy(group => group, groupComparer)
                 .ToList();
-            
+
             configTypeMapping.TypeGroups.Clear();
             runtimeConfigData.Templates.Clear();
-            
+
             foreach (ConfigStructure.Group group in configStructure.Groups)
             {
                 Type type = Type.GetType(group.TypeString);
-                
+
                 ConfigTypeMapping.Group typeGroup = new();
                 configTypeMapping.TypeGroups.Add(typeGroup);
 
                 typeGroup.TypeIdentifier = type.Name.Replace("Template", null);
-                
+
                 typeGroup.TypeString = group.TypeString;
                 typeGroup.BaseTypeStrings.AddRange(group.BaseTypeStrings);
-                
+
                 runtimeConfigData.Templates.AddRange(group.Templates);
             }
 

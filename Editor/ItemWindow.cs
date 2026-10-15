@@ -25,9 +25,14 @@ namespace Kott.Configs
             public Column Column;
         }
 
-        [SerializeField] private string _propertyPath;
-        [SerializeField] private Template _template;
-        [SerializeField] private EditorTable<Column, Row> _table = new EditorTable<Column, Row>();
+        [SerializeField]
+        private string _propertyPath;
+
+        [SerializeField]
+        private Template _template;
+
+        [SerializeField]
+        private EditorTable<Column, Row> _table = new EditorTable<Column, Row>();
 
         private SerializedObject _serializedObject;
 
@@ -82,9 +87,9 @@ namespace Kott.Configs
                 IsControl = true,
             });
 
-            SerializedProperty rootProperty = string.IsNullOrEmpty(_propertyPath) ?
-                _serializedObject.GetIterator() :
-                _serializedObject.FindProperty(_propertyPath);
+            SerializedProperty rootProperty = string.IsNullOrEmpty(_propertyPath)
+                ? _serializedObject.GetIterator()
+                : _serializedObject.FindProperty(_propertyPath);
 
             if (rootProperty.propertyType == SerializedPropertyType.Generic && rootProperty.isArray)
             {
@@ -105,7 +110,7 @@ namespace Kott.Configs
                 else
                 {
                     foreach (SerializedProperty subProperty in ConfigGUI
-                        .GetVisibleProperties(templateProperty))
+                                 .GetVisibleProperties(templateProperty))
                     {
                         _table.Columns.Add(new Column()
                         {
@@ -194,20 +199,20 @@ namespace Kott.Configs
 
             _serializedObject.Update();
 
-            SerializedProperty rootProperty = string.IsNullOrEmpty(_propertyPath) ?
-                _serializedObject.GetIterator() :
-                _serializedObject.FindProperty(_propertyPath);
+            SerializedProperty rootProperty = string.IsNullOrEmpty(_propertyPath)
+                ? _serializedObject.GetIterator()
+                : _serializedObject.FindProperty(_propertyPath);
 
             if (rootProperty.propertyType == SerializedPropertyType.Generic && rootProperty.isArray)
             {
                 DrawArrayProperty(rootProperty);
             }
             else if (rootProperty.propertyType == SerializedPropertyType.Generic &&
-                rootProperty.type != typeof(TemplateReference<>).Name ||
-                rootProperty.propertyType == SerializedPropertyType.Vector4)
+                     rootProperty.type != typeof(TemplateReference<>).Name ||
+                     rootProperty.propertyType == SerializedPropertyType.Vector4)
             {
                 foreach (SerializedProperty subProperty in ConfigGUI
-                    .GetVisibleProperties(rootProperty))
+                             .GetVisibleProperties(rootProperty))
                 {
                     if (subProperty.propertyPath == "m_Script") continue;
                     if (subProperty.propertyPath == "ID") continue;
@@ -293,8 +298,8 @@ namespace Kott.Configs
                 _moveStopIndex = -1;
             }
             else if (eventType != EventType.Repaint && eventType != EventType.Layout &&
-                eventType != EventType.MouseDown && eventType != EventType.MouseDrag &&
-                eventType != EventType.ScrollWheel)
+                     eventType != EventType.MouseDown && eventType != EventType.MouseDrag &&
+                     eventType != EventType.ScrollWheel)
             {
                 _moveStartIndex = -1;
                 _moveStopIndex = -1;
@@ -349,22 +354,23 @@ namespace Kott.Configs
 
         private void TableDrawCellProperty(Rect position, Column column, Row row)
         {
-            SerializedProperty rootProperty = string.IsNullOrEmpty(_propertyPath) ?
-                _serializedObject.GetIterator() :
-                _serializedObject.FindProperty(_propertyPath);
+            SerializedProperty rootProperty = string.IsNullOrEmpty(_propertyPath)
+                ? _serializedObject.GetIterator()
+                : _serializedObject.FindProperty(_propertyPath);
 
             SerializedProperty itemProperty = rootProperty.GetArrayElementAtIndex(row.ArrayIndex);
-            SerializedProperty property = column.RelativePropertyPath != null ?
-                itemProperty.FindPropertyRelative(column.RelativePropertyPath) : itemProperty;
+            SerializedProperty property = column.RelativePropertyPath != null
+                ? itemProperty.FindPropertyRelative(column.RelativePropertyPath)
+                : itemProperty;
 
             ConfigGUI.DrawPropertyCell(position, property, out bool button);
 
             if (button)
             {
                 ItemWindow itemWindow = CreateWindow<ItemWindow>();
-                string subPath = column.RelativePropertyPath != null ?
-                    $"{_propertyPath}.Array.data[{row.ArrayIndex}].{column.RelativePropertyPath}" :
-                    $"{_propertyPath}.Array.data[{row.ArrayIndex}]";
+                string subPath = column.RelativePropertyPath != null
+                    ? $"{_propertyPath}.Array.data[{row.ArrayIndex}].{column.RelativePropertyPath}"
+                    : $"{_propertyPath}.Array.data[{row.ArrayIndex}]";
                 itemWindow.UpdateValues(subPath, _template);
                 itemWindow.Show();
             }

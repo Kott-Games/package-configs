@@ -1,5 +1,5 @@
-using Kott.Scopes;
 using System.Collections.Generic;
+using Kott.Scopes;
 
 namespace Kott.Configs
 {

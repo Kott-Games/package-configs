@@ -15,31 +15,38 @@ namespace Kott.Configs
     [Serializable]
     public class ConfigManager : Manager, IConfigManager
     {
-        private struct userAttributes {
+        private struct userAttributes
+        {
             // Optionally declare variables for any custom user attributes:
             public bool expansionFlag;
         }
 
-        private struct appAttributes {
+        private struct appAttributes
+        {
             // Optionally declare variables for any custom app attributes:
             public int level;
             public int score;
             public string appVersion;
         }
 
-        private struct filterAttributes {
+        private struct filterAttributes
+        {
             // Optionally declare variables for attributes to filter on any of following parameters:
             public string[] key;
             public string[] type;
             public string[] schemaId;
         }
-        
-        [SerializeField] private ConfigTypeMapping _configTypeMapping;
+
+        [SerializeField]
+        private ConfigTypeMapping _configTypeMapping;
 
         [Header("Development")]
-        [SerializeField] private bool _useLocalConfigData = false;
-        [SerializeField] private RuntimeConfigData _configData;
-        
+        [SerializeField]
+        private bool _useLocalConfigData = false;
+
+        [SerializeField]
+        private RuntimeConfigData _configData;
+
         private readonly Dictionary<Type, IList> _templateCollections = new();
         private readonly Dictionary<string, Template> _templateLookup = new();
 
@@ -47,28 +54,28 @@ namespace Kott.Configs
         {
             _templateCollections.Clear();
             _templateLookup.Clear();
-            
+
             SubProgress subProgress = new(progress);
-            
+
             if (_useLocalConfigData)
             {
                 subProgress.Start = new(0f, "Extract Configs");
                 subProgress.Scale = 1f;
-            
+
                 yield return ExtractConfigData(subProgress, _configData);
-                
+
                 yield break;
             }
-            
+
             subProgress.Start = new(0f, "Fetch Remote Configs");
             subProgress.Scale = 0.5f;
-            
+
             RuntimeConfigData configData = ScriptableObject.CreateInstance<RuntimeConfigData>();
             yield return FetchRemoteConfigs(subProgress, configData);
 
             subProgress.Start = new(0.5f, "Extract Configs");
             subProgress.Scale = 0.5f;
-            
+
             yield return ExtractConfigData(subProgress, configData);
         }
 
@@ -78,12 +85,12 @@ namespace Kott.Configs
 
             subProgress.Start = new(0f, "Fetch Remote Configs");
             subProgress.Scale = 0.5f;
-            
+
             RemoteConfigService.Instance.FetchCompleted += OnConfigFetchCompleted;
             Task<RuntimeConfig> fetchConfigsAsync = RemoteConfigService.Instance
                 .FetchConfigsAsync(new userAttributes(), new appAttributes(), new filterAttributes());
             yield return new WaitForTaskWithProgress(fetchConfigsAsync, subProgress);
-            
+
             RuntimeConfig config = RemoteConfigService.Instance.appConfig;
 
             string jTemplatesString = config.GetJson("configTemplates", "[]");
@@ -92,13 +99,13 @@ namespace Kott.Configs
             {
                 subProgress.Start = new(0.5f, "Read Configs");
                 subProgress.Scale = 0.5f;
-                
+
                 Task<JToken> readTokenAsync = JToken.ReadFromAsync(jsonReader);
                 yield return new WaitForTaskWithProgress(readTokenAsync, subProgress);
-                
+
                 JArray jTemplates = readTokenAsync.Result as JArray;
                 Debug.Log(jTemplates.ToString(Formatting.Indented));
-                
+
                 List<Template> templates = ConfigSerializationUtility.Deserialize(_configTypeMapping, jTemplates);
                 configData.Templates.AddRange(templates);
             }
@@ -108,16 +115,17 @@ namespace Kott.Configs
         {
             Dictionary<Type, List<Template>> templateGroupCollectionsBase = new();
             Dictionary<Type, List<Template>> templateGroupCollections = new();
-            
+
             foreach (Template template in configData.Templates)
             {
                 _templateLookup.Add(template.ID, template);
                 Type type = template.GetType();
-                List<Template> groupTemplates = templateGroupCollectionsBase.GetValueOrDefault(type) ?? new List<Template>();
+                List<Template> groupTemplates =
+                    templateGroupCollectionsBase.GetValueOrDefault(type) ?? new List<Template>();
                 templateGroupCollectionsBase[type] = groupTemplates;
                 groupTemplates.Add(template);
             }
-            
+
             foreach (ConfigTypeMapping.Group typeGroup in _configTypeMapping.TypeGroups)
             {
                 Type type = Type.GetType(typeGroup.TypeString);
@@ -126,12 +134,13 @@ namespace Kott.Configs
                 foreach (string baseTypeString in typeGroup.BaseTypeStrings)
                 {
                     Type baseType = Type.GetType(baseTypeString);
-                    List<Template> groupTemplates = templateGroupCollections.GetValueOrDefault(baseType) ?? new List<Template>();
+                    List<Template> groupTemplates =
+                        templateGroupCollections.GetValueOrDefault(baseType) ?? new List<Template>();
                     templateGroupCollections[baseType] = groupTemplates;
                     groupTemplates.AddRange(groupTemplatesBase);
                 }
             }
-            
+
             foreach (ConfigTypeMapping.Group typeGroup in _configTypeMapping.TypeGroups)
             {
                 Type type = Type.GetType(typeGroup.TypeString);
@@ -144,7 +153,7 @@ namespace Kott.Configs
                     groupTemplatesArray.SetValue(groupTemplates[i], i);
                 }
             }
-            
+
             progress?.Report(new ProgressReport(1f, null));
             yield break;
         }

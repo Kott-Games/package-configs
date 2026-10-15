@@ -7,7 +7,8 @@ namespace Kott.Configs
     public class TemplateReference<TTemplate> : ITemplateReference
         where TTemplate : Template
     {
-        [SerializeField] private TTemplate _template;
+        [SerializeField]
+        private TTemplate _template;
 
         Template ITemplateReference.Template
         {

@@ -9,17 +9,19 @@ namespace Kott.Configs
     public class TemplateAssetReference<TAsset> : ITemplateAssetReference
         where TAsset : UnityEngine.Object
     {
-        [SerializeField] private string _address;
+        [SerializeField]
+        private string _address;
 
         string ITemplateAssetReference.Address
         {
             get => _address;
             set => _address = value;
         }
-        
+
 #if UNITY_EDITOR
-        [SerializeField] private TAsset _asset;
-        
+        [SerializeField]
+        private TAsset _asset;
+
         UnityEngine.Object ITemplateAssetReference.Asset
         {
             get => _asset;
