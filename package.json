@@ -6,21 +6,18 @@
     "config"
   ],
   "version": "1.0.0",
-  "description": "Flexible and editor friendly config system.",
+  "description": "Editor-friendly game configuration for Unity. Author configs as ScriptableObject templates with typed cross-references, publish them as versioned JSON (local asset or Unity Remote Config) and query them at runtime.",
   "author": {
     "name": "Paul Kloetzing",
     "email": "kloetzing.paul@gmail.com"
   },
-  "contributors": [
-    "Paul Kloetzing"
-  ],
-  "licensesUrl": "",
-  "changelogUrl": "",
-  "documentationUrl": "",
+  "licensesUrl": "https://github.com/Kott-Games/package-configs/blob/master/LICENSE.md",
+  "changelogUrl": "https://github.com/Kott-Games/package-configs/blob/master/CHANGELOG.md",
+  "documentationUrl": "https://github.com/Kott-Games/package-configs#readme",
   "dependencies": {
-    "com.kott.scopes" : "1.0.0",
+    "com.kott.scopes": "1.0.0",
     "com.unity.addressables": "2.7.4",
-    "com.unity.remote-config" : "4.2.2",
+    "com.unity.remote-config": "4.2.2",
     "com.unity.services.deployment": "1.6.2"
   }
 }
