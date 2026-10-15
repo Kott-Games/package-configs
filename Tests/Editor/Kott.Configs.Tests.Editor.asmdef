@@ -1,0 +1,26 @@
+{
+    "name": "Kott.Configs.Tests.Editor",
+    "rootNamespace": "Kott.Configs.Tests",
+    "references": [
+        "GUID:27619889b8ba8c24980f49ee34dbb44a",
+        "GUID:0acc523941302664db1f4e527237feb3",
+        "GUID:c2f76f0b13817514ba358184bce3ab0b",
+        "GUID:adf76536225fcdf4cb2226edea5cb2b6",
+        "GUID:1a19e44f467348e7a736861e45c75006"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
