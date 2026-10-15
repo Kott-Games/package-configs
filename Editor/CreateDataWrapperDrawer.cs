@@ -19,10 +19,10 @@ namespace Kott.Configs
         {
             SerializedProperty valueProperty = property.FindPropertyRelative("_value");
             return EditorGUI.GetPropertyHeight(valueProperty, true) +
-                EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing +
-                2f * BoxPadding;
+                   EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing +
+                   2f * BoxPadding;
         }
-        
+
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             CacheTypes(property);
@@ -44,7 +44,7 @@ namespace Kott.Configs
             HandleTypeDropdown(headerPosition, valueProperty);
             EditorGUI.PropertyField(valuePosition, valueProperty, true);
         }
-        
+
         private void HandleTypeDropdown(Rect position, SerializedProperty valueProperty)
         {
             int index = EditorGUI.Popup(position, _popupLabel, -1, _typeLabels);

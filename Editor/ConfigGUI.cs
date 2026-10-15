@@ -70,20 +70,21 @@ namespace Kott.Configs
                 // special properties
                 case SerializedPropertyType.Integer:
                 case SerializedPropertyType.Float:
+                {
+                    for (int i = 0; i < propertyInfo.PropertyAttributes.Length; i++)
                     {
-                        for (int i = 0; i < propertyInfo.PropertyAttributes.Length; i++)
-                        {
-                            if (propertyInfo.PropertyAttributes[i] is RangeAttribute rangeAttribute)
-                                return 140f;
-                        }
-                        return 80.0f;
+                        if (propertyInfo.PropertyAttributes[i] is RangeAttribute rangeAttribute)
+                            return 140f;
                     }
+
+                    return 80.0f;
+                }
                 case SerializedPropertyType.Generic:
-                    {
-                        if (property.type == typeof(TemplateReference<>).Name && !property.isArray)
-                            return 150f;
-                        return 60f;
-                    }
+                {
+                    if (property.type == typeof(TemplateReference<>).Name && !property.isArray)
+                        return 150f;
+                    return 60f;
+                }
 
                 // kind of useless
                 case SerializedPropertyType.ObjectReference:
@@ -124,9 +125,9 @@ namespace Kott.Configs
                 case SerializedPropertyType.Integer:
                 case SerializedPropertyType.Float:
                 case SerializedPropertyType.String:
-                    {
-                        EditorGUI.PropertyField(position, property, GUIContent.none, false);
-                    }
+                {
+                    EditorGUI.PropertyField(position, property, GUIContent.none, false);
+                }
                     break;
 
                 // big properties
@@ -138,40 +139,40 @@ namespace Kott.Configs
                 case SerializedPropertyType.Rect:
                 case SerializedPropertyType.BoundsInt:
                 case SerializedPropertyType.Bounds:
-                    {
-                        button = GUI.Button(position, new GUIContent("Open", property.propertyPath));
-                    }
+                {
+                    button = GUI.Button(position, new GUIContent("Open", property.propertyPath));
+                }
                     break;
 
                 // special properties
                 case SerializedPropertyType.Boolean:
-                    {
-                        GUIContent icon = property.boolValue ?
-                            EditorGUIUtility.IconContent("d_GreenLight") :
-                            EditorGUIUtility.IconContent("d_RedLight");
+                {
+                    GUIContent icon = property.boolValue
+                        ? EditorGUIUtility.IconContent("d_GreenLight")
+                        : EditorGUIUtility.IconContent("d_RedLight");
 
-                        Rect iconPosition = new Rect(position) { width = 20f };
-                        Rect togglePosition = new Rect(position);
-                        togglePosition.width -= iconPosition.width;
-                        togglePosition.x += iconPosition.width;
+                    Rect iconPosition = new Rect(position) { width = 20f };
+                    Rect togglePosition = new Rect(position);
+                    togglePosition.width -= iconPosition.width;
+                    togglePosition.x += iconPosition.width;
 
-                        GUI.Label(iconPosition, icon);
-                        bool toggle = GUI.Button(togglePosition, GUIContent.none);
+                    GUI.Label(iconPosition, icon);
+                    bool toggle = GUI.Button(togglePosition, GUIContent.none);
 
-                        if (toggle) property.boolValue = !property.boolValue;
-                    }
+                    if (toggle) property.boolValue = !property.boolValue;
+                }
                     break;
                 case SerializedPropertyType.Generic:
+                {
+                    if (property.type == typeof(TemplateReference<>).Name && !property.isArray)
                     {
-                        if (property.type == typeof(TemplateReference<>).Name && !property.isArray)
-                        {
-                            EditorGUI.PropertyField(position, property, GUIContent.none, false);
-                        }
-                        else
-                        {
-                            button = GUI.Button(position, new GUIContent("Open", property.propertyPath));
-                        }
+                        EditorGUI.PropertyField(position, property, GUIContent.none, false);
                     }
+                    else
+                    {
+                        button = GUI.Button(position, new GUIContent("Open", property.propertyPath));
+                    }
+                }
                     break;
 
                 // kind of useless

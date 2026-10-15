@@ -37,7 +37,7 @@ namespace Kott.Configs
             };
 
             JsonSerializer serializer = JsonSerializer.CreateDefault(settings);
-            
+
             Dictionary<Type, string> typeLookup = typeMapping.TypeGroups
                 .ToDictionary(group => Type.GetType(group.TypeString), group => group.TypeIdentifier);
 
@@ -45,26 +45,26 @@ namespace Kott.Configs
             foreach (Template template in templates)
             {
                 JObject jTemplate = JObject.FromObject(template, serializer);
-                
+
                 Type type = template.GetType();
                 string typeIdentifier = typeLookup[type];
                 jTemplate.AddFirst(new JProperty("Type", typeIdentifier));
-                
+
                 // remove unnecessary unity object properties
                 jTemplate.Remove("name");
                 jTemplate.Remove("hideFlags");
-                
+
                 jTemplates.Add(jTemplate);
             }
-            
+
             return jTemplates;
         }
-        
+
         public static List<Template> Deserialize(ConfigTypeMapping typeMapping, JArray jTemplates)
         {
             TemplateReferenceConverter templateReferenceConverter = new TemplateReferenceConverter();
             TemplateAssetReferenceConverter templateAssetReferenceConverter = new TemplateAssetReferenceConverter();
-            
+
             JsonSerializerSettings settings = new()
             {
                 Formatting = Formatting.Indented,
@@ -99,13 +99,13 @@ namespace Kott.Configs
             {
                 string typeIdentifier = jTemplate.Value<string>("Type");
                 Type type = typeLookup[typeIdentifier];
-                
+
                 Template template = (Template)ScriptableObject.CreateInstance(type);
                 serializer.Populate(jTemplate.CreateReader(), template);
-                
+
                 templateLookup.Add(template.ID, template);
             }
-            
+
             foreach ((string id, List<ITemplateReference> references) in templateReferenceConverter.References)
             {
                 Template template = templateLookup.GetValueOrDefault(id);

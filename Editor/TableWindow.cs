@@ -1,7 +1,7 @@
-using Kott.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Kott.Utilities;
 using UnityEditor;
 using UnityEngine;
 
@@ -22,10 +22,17 @@ namespace Kott.Configs
             public SerializedObject SerializedObject;
         }
 
-        [SerializeField] private string _propertyPath;
-        [SerializeField] private ItemFilter _filter;
-        [SerializeField] private EditorTable<Column, Row> _table = new EditorTable<Column, Row>();
-        [SerializeField] private float _widthID = 120f;
+        [SerializeField]
+        private string _propertyPath;
+
+        [SerializeField]
+        private ItemFilter _filter;
+
+        [SerializeField]
+        private EditorTable<Column, Row> _table = new EditorTable<Column, Row>();
+
+        [SerializeField]
+        private float _widthID = 120f;
 
         private SerializedObject _serializedObject;
 
@@ -102,9 +109,9 @@ namespace Kott.Configs
                 if (!templateTypes.Add(row.Wrapper.GetType()))
                     continue;
 
-                SerializedProperty rootProperty = string.IsNullOrEmpty(_propertyPath) ?
-                    row.SerializedObject.GetIterator() :
-                    row.SerializedObject.FindProperty(_propertyPath);
+                SerializedProperty rootProperty = string.IsNullOrEmpty(_propertyPath)
+                    ? row.SerializedObject.GetIterator()
+                    : row.SerializedObject.FindProperty(_propertyPath);
                 var paths = ConfigGUI.GetVisibleProperties(rootProperty).Select(p => p.propertyPath);
 
                 if (propertyPaths == null)
@@ -126,7 +133,8 @@ namespace Kott.Configs
                 }
                 else
                 {
-                    propertyPaths.IntersectWith(ConfigGUI.GetVisibleProperties(rootProperty).Select(p => p.propertyPath));
+                    propertyPaths.IntersectWith(
+                        ConfigGUI.GetVisibleProperties(rootProperty).Select(p => p.propertyPath));
                 }
             }
 

@@ -1,7 +1,7 @@
-using Kott.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Kott.Utilities;
 using UnityEditor;
 using UnityEngine;
 
@@ -10,10 +10,14 @@ namespace Kott.Configs
     [Serializable]
     public class ItemFilter
     {
-        [SerializeField] private List<string> _selectedTypeStrings = new List<string>();
+        [SerializeField]
+        private List<string> _selectedTypeStrings = new List<string>();
 
-        [SerializeField] private bool _configTypeSelectionExpanded;
-        [SerializeField] private string _selectedConfigTypesHeader;
+        [SerializeField]
+        private bool _configTypeSelectionExpanded;
+
+        [SerializeField]
+        private string _selectedConfigTypesHeader;
 
         public ItemFilter()
         {
@@ -83,6 +87,7 @@ namespace Kott.Configs
                             nextTypeStrings.Add(group.TypeString);
                         }
                     }
+
                     GUI.backgroundColor = backgroundColor;
                 }
 
