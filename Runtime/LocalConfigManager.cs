@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace Kott.Configs
 {
+    [Serializable]
     public sealed class LocalConfigManager : Manager, IConfigManager
     {
         [SerializeField] private ConfigTypeMapping _configTypeMapping;
