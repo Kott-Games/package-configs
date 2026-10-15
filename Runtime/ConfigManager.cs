@@ -12,6 +12,7 @@ using UnityEngine;
 
 namespace Kott.Configs
 {
+    [Serializable]
     public class ConfigManager : Manager, IConfigManager
     {
         private struct userAttributes {
