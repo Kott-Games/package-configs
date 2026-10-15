@@ -1,4 +1,4 @@
-﻿namespace Kott.Configs
+namespace Kott.Configs
 {
     public static class TemplateExtensions
     {

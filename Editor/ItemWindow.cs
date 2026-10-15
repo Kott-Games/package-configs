@@ -1,4 +1,4 @@
-﻿using Kott.Utilities;
+using Kott.Utilities;
 using UnityEditor;
 using UnityEngine;
 
