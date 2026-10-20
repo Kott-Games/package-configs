@@ -2,12 +2,10 @@
     "name": "Kott.Configs.Editor",
     "rootNamespace": "Kott.Configs",
     "references": [
+        "GUID:c2f76f0b13817514ba358184bce3ab0b",
         "GUID:b0f31b71235c2cf4ba6fdc19f8bc7546",
         "GUID:23992a4295586a441a6ba244f0d0d242",
-        "GUID:c2f76f0b13817514ba358184bce3ab0b",
-        "GUID:69448af7b92c7f342b298e06a37122aa",
-        "GUID:dfedbea4dc7154f92b6f47c1877bce29",
-        "GUID:9e6ed7d51349b45518022aa545ab7e0b"
+        "GUID:69448af7b92c7f342b298e06a37122aa"
     ],
     "includePlatforms": [
         "Editor"

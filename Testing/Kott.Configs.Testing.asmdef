@@ -2,20 +2,25 @@
     "name": "Kott.Configs.Testing",
     "rootNamespace": "Kott.Configs.Testing",
     "references": [
-        "GUID:27619889b8ba8c24980f49ee34dbb44a",
-        "GUID:c2f76f0b13817514ba358184bce3ab0b"
+        "GUID:c2f76f0b13817514ba358184bce3ab0b",
+        "GUID:3f1c2a9e7b5d4c8e9a0b1c2d3e4f5a6b",
+        "GUID:654bc5fac8fa28e448395e5b8ed61856"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
-    "overrideReferences": true,
-    "precompiledReferences": [
-        "nunit.framework.dll"
-    ],
+    "overrideReferences": false,
+    "precompiledReferences": [],
     "autoReferenced": false,
     "defineConstraints": [
         "UNITY_INCLUDE_TESTS"
     ],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.kott.scopes",
+            "expression": "1.0.0",
+            "define": "KOTT_CONFIGS_SCOPES"
+        }
+    ],
     "noEngineReferences": false
 }

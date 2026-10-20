@@ -116,8 +116,7 @@ namespace Kott.Configs
                     .Select(t => ConfigEditorUtility.TypeToLabel(t))
                     .ToArray();
 
-                TemplateGroupAttribute groupAttribute = groupData.Type.GetCustomAttribute<TemplateGroupAttribute>(true);
-                string groupID = groupAttribute?.GroupID ?? groupData.Type.Name;
+                string groupID = TemplateIdUtility.GetGroupId(groupData.Type);
 
                 foreach (Template template in groupData.Templates)
                 {
@@ -130,7 +129,7 @@ namespace Kott.Configs
                     }
                     else
                     {
-                        template.ID = $"{groupID}+{template.name}";
+                        template.ID = TemplateIdUtility.CreateId(groupData.Type, template.name);
                     }
 
                     EditorUtility.SetDirty(template);
@@ -165,8 +164,7 @@ namespace Kott.Configs
 
             foreach ((Type groupType, ConfigStructure.Group groupStructure) in groupStructures)
             {
-                TemplateGroupAttribute groupAttribute = groupType.GetCustomAttribute<TemplateGroupAttribute>(true);
-                groupStructure.ID = groupAttribute?.GroupID ?? groupType.Name;
+                groupStructure.ID = TemplateIdUtility.GetGroupId(groupType);
             }
 
             ConfigStructure configStructure = ConfigEditorUtility.GetConfigDataCache<ConfigStructure>();
@@ -188,7 +186,7 @@ namespace Kott.Configs
                 ConfigTypeMapping.Group typeGroup = new();
                 configTypeMapping.TypeGroups.Add(typeGroup);
 
-                typeGroup.TypeIdentifier = type.Name.Replace("Template", null);
+                typeGroup.TypeIdentifier = TemplateIdUtility.GetTypeIdentifier(type);
 
                 typeGroup.TypeString = group.TypeString;
                 typeGroup.BaseTypeStrings.AddRange(group.BaseTypeStrings);

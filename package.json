@@ -15,9 +15,8 @@
   "changelogUrl": "https://github.com/Kott-Games/package-configs/blob/master/CHANGELOG.md",
   "documentationUrl": "https://github.com/Kott-Games/package-configs#readme",
   "dependencies": {
-    "com.kott.scopes": "1.0.0",
+    "com.kott.utilities": "1.0.0",
     "com.unity.addressables": "2.7.4",
-    "com.unity.remote-config": "4.2.2",
-    "com.unity.services.deployment": "1.6.2"
+    "com.unity.nuget.newtonsoft-json": "3.2.1"
   }
 }
