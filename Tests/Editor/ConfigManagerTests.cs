@@ -43,7 +43,7 @@ namespace Kott.Configs.Tests
             Run(_manager.Initialize(null));
 
             Assert.That(_manager.GetTemplate<TestItemTemplate>("TestItem+A").Damage, Is.EqualTo(3));
-            Assert.That(_manager.GetCollection<TestItemTemplate>(), Has.Count.EqualTo(1));
+            Assert.That(_manager.GetCollection<TestItemTemplate>(), Has.Length.EqualTo(1));
         }
 
         [Test]

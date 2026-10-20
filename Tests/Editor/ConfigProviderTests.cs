@@ -41,7 +41,7 @@ namespace Kott.Configs.Tests
 
             Assert.That(_provider.IsLoaded, Is.True);
             Assert.That(_provider.GetTemplate<TestItemTemplate>("TestItem+A").Damage, Is.EqualTo(1));
-            Assert.That(_provider.GetCollection<TestItemTemplate>(), Has.Count.EqualTo(2));
+            Assert.That(_provider.GetCollection<TestItemTemplate>(), Has.Length.EqualTo(2));
             Assert.That(_provider.GetCollection<TestUnusedTemplate>(), Is.Empty);
         }
 
@@ -71,7 +71,7 @@ namespace Kott.Configs.Tests
 
             Assert.That(_provider.GetTemplate<TestItemTemplate>("TestItem+A").Damage, Is.EqualTo(2));
             Assert.That(_provider.GetTemplate<TestItemTemplate>("TestItem+B").Damage, Is.EqualTo(1));
-            Assert.That(_provider.GetCollection<TestItemTemplate>(), Has.Count.EqualTo(3));
+            Assert.That(_provider.GetCollection<TestItemTemplate>(), Has.Length.EqualTo(3));
             Assert.That(_provider.GetCollection<TestItemTemplate>()[0].ID, Is.EqualTo("TestItem+A"));
         }
 
@@ -162,7 +162,7 @@ namespace Kott.Configs.Tests
         {
             Load(new FakeLoader(Payload(Item("TestItem+A"))), new FakeLoader((string)null));
 
-            Assert.That(_provider.GetCollection<TestItemTemplate>(), Has.Count.EqualTo(1));
+            Assert.That(_provider.GetCollection<TestItemTemplate>(), Has.Length.EqualTo(1));
         }
 
         [Test]

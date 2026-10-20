@@ -35,11 +35,11 @@ namespace Kott.Configs.Tests
         public void Add_AfterQuery_IsVisible()
         {
             _provider.Add<TestItemTemplate>("TestItem+A");
-            Assert.That(_provider.GetCollection<TestItemTemplate>(), Has.Count.EqualTo(1));
+            Assert.That(_provider.GetCollection<TestItemTemplate>(), Has.Length.EqualTo(1));
 
             _provider.Add<TestItemTemplate>("TestItem+B");
 
-            Assert.That(_provider.GetCollection<TestItemTemplate>(), Has.Count.EqualTo(2));
+            Assert.That(_provider.GetCollection<TestItemTemplate>(), Has.Length.EqualTo(2));
         }
 
         [Test]
