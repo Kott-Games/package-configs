@@ -114,7 +114,8 @@ namespace Kott.Configs.Tests
 
             ConfigPayload payload = Track(ConfigSerialization.Deserialize(_mapping, json));
 
-            Assert.That(payload.Templates.Select(template => template.ID), Is.EqualTo(new[] { "TestItem+A", "TestItem+B" }));
+            Assert.That(payload.Templates.Select(template => template.ID),
+                Is.EqualTo(new[] { "TestItem+A", "TestItem+B" }));
         }
 
         [Test]

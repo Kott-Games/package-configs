@@ -57,7 +57,8 @@ namespace Kott.Configs.Tests
         public void ResolveTypes_TypeNoLongerExists_ThrowsNamingType()
         {
             _mapping = ConfigTypeMapping.Create();
-            _mapping.TypeGroups.Add(new ConfigTypeMapping.Group { TypeIdentifier = "Gone", TypeString = "Missing.GoneTemplate, Missing" });
+            _mapping.TypeGroups.Add(new ConfigTypeMapping.Group
+                { TypeIdentifier = "Gone", TypeString = "Missing.GoneTemplate, Missing" });
 
             ConfigException exception = Assert.Throws<ConfigException>(() => _mapping.ResolveTypes());
 
@@ -93,7 +94,8 @@ namespace Kott.Configs.Tests
         [Test]
         public void CreateId_NoGroupAttribute_UsesTypeName()
         {
-            Assert.That(TemplateIdUtility.CreateId(typeof(TestItemTemplate), "Sword"), Is.EqualTo("TestItemTemplate+Sword"));
+            Assert.That(TemplateIdUtility.CreateId(typeof(TestItemTemplate), "Sword"),
+                Is.EqualTo("TestItemTemplate+Sword"));
         }
     }
 }

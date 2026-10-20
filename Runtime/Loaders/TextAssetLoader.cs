@@ -31,7 +31,8 @@ namespace Kott.Configs
         }
 
         /// <inheritdoc />
-        public override string Name => _payload ? $"{nameof(TextAssetLoader)} '{_payload.name}'" : nameof(TextAssetLoader);
+        public override string Name =>
+            _payload ? $"{nameof(TextAssetLoader)} '{_payload.name}'" : nameof(TextAssetLoader);
 
         /// <inheritdoc />
         public override Task<string> LoadAsync(IProgress<ProgressReport> progress, CancellationToken cancellationToken)

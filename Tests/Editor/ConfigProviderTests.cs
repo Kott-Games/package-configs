@@ -57,7 +57,8 @@ namespace Kott.Configs.Tests
         [Test]
         public void LoadAsync_ReferenceCycle_Resolved()
         {
-            Load(new FakeLoader(Payload(Item("TestItem+A", upgrade: "TestItem+B"), Item("TestItem+B", upgrade: "TestItem+A"))));
+            Load(new FakeLoader(Payload(Item("TestItem+A", upgrade: "TestItem+B"),
+                Item("TestItem+B", upgrade: "TestItem+A"))));
 
             TestItemTemplate a = _provider.GetTemplate<TestItemTemplate>("TestItem+A");
             Assert.That(a.Upgrade.Template.Upgrade.Template, Is.SameAs(a));
@@ -266,7 +267,8 @@ namespace Kott.Configs.Tests
         [Test]
         public void LoadAsync_InvalidMapping_Throws()
         {
-            _mapping.TypeGroups.Add(new ConfigTypeMapping.Group { TypeIdentifier = "Gone", TypeString = "Gone, Missing" });
+            _mapping.TypeGroups.Add(new ConfigTypeMapping.Group
+                { TypeIdentifier = "Gone", TypeString = "Gone, Missing" });
             _provider = new ConfigProvider(_mapping, Array.Empty<ConfigLoader>(), _log.Logger);
 
             Assert.Throws<ConfigException>(() => Run(_provider.LoadAsync()));

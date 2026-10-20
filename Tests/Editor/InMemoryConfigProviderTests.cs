@@ -27,7 +27,8 @@ namespace Kott.Configs.Tests
             _provider.AddType<TestUnusedTemplate>();
 
             Assert.That(_provider.GetTemplate<TestItemTemplate>("TestItem+A").Damage, Is.EqualTo(2));
-            Assert.That(_provider.GetCollection<TestItemTemplate>(), Is.EqualTo(new TestItemTemplate[] { item, weapon }));
+            Assert.That(_provider.GetCollection<TestItemTemplate>(),
+                Is.EqualTo(new TestItemTemplate[] { item, weapon }));
             Assert.That(_provider.GetCollection<TestUnusedTemplate>(), Is.Empty);
         }
 

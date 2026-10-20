@@ -81,7 +81,8 @@ namespace Kott.Configs.Tests
             InvalidCastException exception =
                 Assert.Throws<InvalidCastException>(() => catalog.GetTemplate<TestWeaponTemplate>("TestItem+A"));
 
-            Assert.That(exception.Message, Does.Contain(nameof(TestItemTemplate)).And.Contain(nameof(TestWeaponTemplate)));
+            Assert.That(exception.Message,
+                Does.Contain(nameof(TestItemTemplate)).And.Contain(nameof(TestWeaponTemplate)));
         }
 
         [Test]

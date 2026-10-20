@@ -73,9 +73,11 @@ namespace Kott.Configs
 
         private static bool IsInstantiable(Type type)
         {
-            return !type.IsAbstract && !type.IsGenericTypeDefinition && !typeof(UnityEngine.Object).IsAssignableFrom(type) &&
+            return !type.IsAbstract && !type.IsGenericTypeDefinition &&
+                   !typeof(UnityEngine.Object).IsAssignableFrom(type) &&
                    type.IsDefined(typeof(SerializableAttribute), false) &&
-                   type.GetConstructor(BindingFlags.Instance | BindingFlags.Public, null, Type.EmptyTypes, null) != null;
+                   type.GetConstructor(BindingFlags.Instance | BindingFlags.Public, null, Type.EmptyTypes, null) !=
+                   null;
         }
     }
 }

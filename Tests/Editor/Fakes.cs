@@ -20,7 +20,8 @@ namespace Kott.Configs.Tests
             : this(_ => Task.FromResult(json), policy)
         { }
 
-        public FakeLoader(Func<CancellationToken, Task<string>> load, ConfigLoaderPolicy policy = ConfigLoaderPolicy.Required)
+        public FakeLoader(Func<CancellationToken, Task<string>> load,
+            ConfigLoaderPolicy policy = ConfigLoaderPolicy.Required)
         {
             _load = load;
             Policy = policy;

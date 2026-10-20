@@ -69,12 +69,13 @@ namespace Kott.Configs
         }
 
         /// <summary>The full path (or URL, e.g. <c>StreamingAssets</c> on Android and WebGL).</summary>
-        public string FullPath => _root switch
-        {
-            PathRoot.StreamingAssets => System.IO.Path.Combine(Application.streamingAssetsPath, _path),
-            PathRoot.PersistentData => System.IO.Path.Combine(Application.persistentDataPath, _path),
-            _ => _path,
-        };
+        public string FullPath =>
+            _root switch
+            {
+                PathRoot.StreamingAssets => System.IO.Path.Combine(Application.streamingAssetsPath, _path),
+                PathRoot.PersistentData => System.IO.Path.Combine(Application.persistentDataPath, _path),
+                _ => _path,
+            };
 
         /// <inheritdoc />
         public override string Name => $"{nameof(FileLoader)} '{_path}'";
