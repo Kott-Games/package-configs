@@ -1,0 +1,28 @@
+{
+    "name": "Kott.Configs.RemoteConfig",
+    "rootNamespace": "Kott.Configs",
+    "references": [
+        "GUID:c2f76f0b13817514ba358184bce3ab0b",
+        "GUID:b0f31b71235c2cf4ba6fdc19f8bc7546",
+        "GUID:fe25561d224ed4743af4c60938a59d0b",
+        "GUID:9d6c7830d9ab746a7a12f144bdeeee7c",
+        "GUID:5540e30183c82e84b954c033c388e06c"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "KOTT_CONFIGS_REMOTE_CONFIG"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.unity.remote-config-runtime",
+            "expression": "4.0.0",
+            "define": "KOTT_CONFIGS_REMOTE_CONFIG"
+        }
+    ],
+    "noEngineReferences": false
+}

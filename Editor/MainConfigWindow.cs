@@ -38,8 +38,8 @@ namespace Kott.Configs
             ConfigTypeMapping configTypeMapping = ConfigEditorUtility.GetConfigDataCache<ConfigTypeMapping>();
             RuntimeConfigData runtimeConfigData = ConfigEditorUtility.GetConfigDataCache<RuntimeConfigData>();
 
-            JArray jTemplates = ConfigSerializationUtility.Serialize(configTypeMapping, runtimeConfigData.Templates);
-            JObject entries = new(new JProperty(ConfigVersionUtility.GetTemplateDataKey(), jTemplates));
+            JObject payload = ConfigSerialization.Serialize(configTypeMapping, runtimeConfigData.Templates);
+            JObject entries = new(new JProperty(ConfigVersionUtility.GetTemplateDataKey(), payload));
 
             RCJsonAPI.WriteToConfigAsset("json_config", entries);
         }
