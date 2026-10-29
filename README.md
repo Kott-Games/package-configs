@@ -43,7 +43,7 @@ Alternatively from git URLs. Unity can't resolve the Utilities dependency from a
 
 ```
 https://github.com/Kott-Games/package-utilities.git#v1.0.0
-https://github.com/Kott-Games/package-configs.git#v1.0.0
+https://github.com/Kott-Games/package-configs.git#v1.0.1
 ```
 
 Addressables and Newtonsoft JSON are installed as dependencies. Optional packages unlock more:
@@ -155,7 +155,8 @@ configs.Add<ItemTemplate>("Item+Coin", item => item.Value = 2);
 Assert.That(Shop.Price(configs, "Item+Coin"), Is.EqualTo(2));
 ```
 
-`InMemoryConfigProvider` lives in `Kott.Configs.Testing` (reference it from your test assembly) and has the
+`InMemoryConfigProvider` lives in `Kott.Configs.Testing` (reference it from your test assembly; it is compiled in the editor and in
+test builds, not in regular player builds) and has the
 provider's lookups. With Scopes, `InMemoryConfigManager` injects it as `IConfigManager`. To test real data, build
 a set with `ConfigPipeline.Build(set)` and load its `Payload` through a `ConfigProvider`.
 
