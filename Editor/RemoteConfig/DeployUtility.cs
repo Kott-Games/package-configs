@@ -7,7 +7,7 @@ using UnityEditor;
 namespace Kott.Configs
 {
     /// <summary>Deploys files through the Deployment window of the Unity Services Deployment package.</summary>
-    public static class DeployUtility
+    internal static class DeployUtility
     {
         /// <summary>Deploys the files at <paramref name="paths" /> (asset paths) to the current environment.</summary>
         public static async Task<DeploymentResult<IDeploymentItem>> DeployAsync(IReadOnlyList<string> paths)
