@@ -1,0 +1,39 @@
+[
+  {
+    "Type": "Enemy",
+    "ID": "Enemy+Rat",
+    "DisplayName": "Sewer Rat",
+    "Health": 5,
+    "Damage": 1,
+    "Element": "Poison",
+    "Loot": [
+      "Item+Coin"
+    ]
+  },
+  {
+    "Type": "Enemy",
+    "ID": "Enemy+Bat",
+    "DisplayName": "Ice Bat",
+    "Health": 8,
+    "Damage": 2,
+    "Element": "Ice",
+    "Loot": [
+      "Item+Fang"
+    ]
+  },
+  {
+    "Type": "Boss",
+    "ID": "Enemy+RatKing",
+    "DisplayName": "Rat King",
+    "Health": 60,
+    "Damage": 5,
+    "Element": "Poison",
+    "Loot": [
+      "Item+Coin",
+      "Item+Coin",
+      "Item+Coin"
+    ],
+    "Phases": 2,
+    "Minion": "Enemy+Rat"
+  }
+]

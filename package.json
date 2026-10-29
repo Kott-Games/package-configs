@@ -3,10 +3,14 @@
   "displayName": "Kott Configs",
   "unity": "6000.0",
   "keywords": [
-    "config"
+    "config",
+    "game data",
+    "scriptable objects",
+    "remote config",
+    "tuning"
   ],
   "version": "1.0.0",
-  "description": "Editor-friendly game configuration for Unity. Author configs as ScriptableObject templates with typed cross-references, publish them as versioned JSON (local asset or Unity Remote Config) and query them at runtime.",
+  "description": "Typed game config data for Unity. Author templates as ScriptableObjects (and JSON files) with typed cross-references, validate and bake them per config set, publish them to files or Unity Remote Config, and load them at runtime from layered sources with typed lookups.",
   "author": {
     "name": "Paul Kloetzing",
     "email": "kloetzing.paul@gmail.com"
@@ -18,5 +22,12 @@
     "com.kott.utilities": "1.0.0",
     "com.unity.addressables": "2.7.4",
     "com.unity.nuget.newtonsoft-json": "3.2.1"
-  }
+  },
+  "samples": [
+    {
+      "displayName": "Configs Basics",
+      "description": "A bestiary from one config set: template assets and a JSON file, subtypes, template and Addressables asset references, an enum mapping, and layered loaders with an override file you can edit while playing. Works without Scopes; needs uGUI.",
+      "path": "Samples~/Configs Basics"
+    }
+  ]
 }
