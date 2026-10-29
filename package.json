@@ -9,7 +9,7 @@
     "remote config",
     "tuning"
   ],
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Typed game config data for Unity. Author templates as ScriptableObjects (and JSON files) with typed cross-references, validate and bake them per config set, publish them to files or Unity Remote Config, and load them at runtime from layered sources with typed lookups.",
   "author": {
     "name": "Paul Kloetzing",
