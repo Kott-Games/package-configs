@@ -43,7 +43,7 @@ Alternatively from git URLs. Unity can't resolve the Utilities dependency from a
 
 ```
 https://github.com/Kott-Games/package-utilities.git#v1.0.0
-https://github.com/Kott-Games/package-configs.git#v1.0.0
+https://github.com/Kott-Games/package-configs.git#v1.0.1
 ```
 
 Addressables and Newtonsoft JSON are installed as dependencies. Optional packages unlock more:
