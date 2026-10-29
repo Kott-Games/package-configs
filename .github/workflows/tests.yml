@@ -1,0 +1,59 @@
+name: Tests
+
+on:
+  push:
+    branches: [master, 'release/**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  checks: write
+  contents: read
+
+jobs:
+  test:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Configs
+          - name: Configs + Scopes + Remote Config
+            integrations: true
+    steps:
+      - name: Checkout Package
+        uses: actions/checkout@v4
+        with:
+          path: kott-configs
+          fetch-depth: 1
+
+      # Scopes, Remote Config and Deployment are optional; declaring them in the checked-out package.json pulls
+      # them into the test project and enables the integration assemblies and their tests
+      - name: Add Integrations
+        if: matrix.integrations
+        working-directory: kott-configs
+        run: >-
+          jq '.dependencies += {
+          "com.kott.scopes": "1.0.0",
+          "com.unity.remote-config": "4.2.5",
+          "com.unity.services.deployment": "1.7.1"
+          }' package.json > package.tmp && mv package.tmp package.json
+
+      # packageMode creates a temporary empty project and adds the package as a testable;
+      # com.kott.* dependencies resolve from OpenUPM
+      - name: Run Package Tests
+        uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          packageMode: true
+          projectPath: kott-configs
+          unityVersion: 6000.3.19f1
+          scopedRegistryUrl: https://package.openupm.com
+          registryScopes: com.kott
+          testMode: All # runs PlayMode and EditMode tests
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          checkName: Test results (${{ matrix.name }})
