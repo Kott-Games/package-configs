@@ -33,8 +33,7 @@ namespace Kott.Configs.Basics
         public int Threat => Enemy.Health * Enemy.Damage * (Boss ? Boss.Phases : 1);
 
         /// <summary>The dropped items. References that are empty (or didn't resolve) are skipped.</summary>
-        public IEnumerable<ItemTemplate> Loot =>
-            Enemy.Loot.Select(reference => reference.Template).Where(item => item);
+        public IEnumerable<ItemTemplate> Loot => Enemy.Loot.Select(reference => reference.Template).Where(item => item);
 
         /// <summary>Total value of the dropped items.</summary>
         public int LootValue => Loot.Sum(item => item.Value);
