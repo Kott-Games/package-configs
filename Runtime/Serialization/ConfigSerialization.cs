@@ -32,7 +32,9 @@ namespace Kott.Configs
 
         /// <summary>
         ///     Settings shared by all config serialization: Unity value types (vectors, colors, rects, bounds),
-        ///     dictionaries as arrays, template asset references as addresses, default values omitted, no type names.
+        ///     dictionaries as arrays, template asset references as addresses, no type names.
+        ///     Every field is written and read, also when it holds its type's default value: a template's field
+        ///     initializers must never replace a <c>0</c>, <c>false</c> or <c>null</c> from the payload.
         /// </summary>
         public static JsonSerializerSettings CreateSerializerSettings()
         {
@@ -40,7 +42,7 @@ namespace Kott.Configs
             {
                 Formatting = Formatting.Indented,
                 TypeNameHandling = TypeNameHandling.None,
-                DefaultValueHandling = DefaultValueHandling.Ignore,
+                DefaultValueHandling = DefaultValueHandling.Include,
                 Converters = new List<JsonConverter>
                 {
                     new Vector2Converter(),

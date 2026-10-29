@@ -108,6 +108,45 @@ namespace Kott.Configs.Tests
         }
 
         [Test]
+        public void Serialize_DefaultValueOverInitializer_WritesValue()
+        {
+            TestWeaponTemplate weapon = Create<TestWeaponTemplate>("TestWeapon+Bow");
+            weapon.Cooldown = 0f;
+            weapon.Stackable = false;
+
+            JObject jWeapon = (JObject)ConfigSerialization.Serialize(_mapping, new[] { weapon })["templates"][0];
+
+            Assert.That(jWeapon["Cooldown"]?.Value<float>(), Is.EqualTo(0f));
+            Assert.That(jWeapon["Stackable"]?.Value<bool>(), Is.False);
+        }
+
+        [Test]
+        public void Deserialize_DefaultValueOverInitializer_KeepsValue()
+        {
+            JObject weapon = TestPayloads.Item("TestWeapon+Bow", type: "TestWeapon");
+            weapon["Cooldown"] = 0f;
+            weapon["Stackable"] = false;
+
+            ConfigPayload payload = Track(ConfigSerialization.Deserialize(_mapping, TestPayloads.Payload(weapon)));
+
+            TestWeaponTemplate read = (TestWeaponTemplate)payload.Templates.Single();
+            Assert.That(read.Cooldown, Is.EqualTo(0f));
+            Assert.That(read.Stackable, Is.False);
+        }
+
+        [Test]
+        public void Deserialize_MissingField_KeepsInitializer()
+        {
+            JObject weapon = TestPayloads.Item("TestWeapon+Bow", type: "TestWeapon");
+
+            ConfigPayload payload = Track(ConfigSerialization.Deserialize(_mapping, TestPayloads.Payload(weapon)));
+
+            TestWeaponTemplate read = (TestWeaponTemplate)payload.Templates.Single();
+            Assert.That(read.Cooldown, Is.EqualTo(1.5f));
+            Assert.That(read.Stackable, Is.True);
+        }
+
+        [Test]
         public void Deserialize_FlatArray_ReadsTemplates()
         {
             string json = new JArray(TestPayloads.Item("TestItem+A"), TestPayloads.Item("TestItem+B")).ToString();
