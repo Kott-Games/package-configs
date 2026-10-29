@@ -27,7 +27,10 @@ namespace Kott.Configs
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            writer.WriteValue(((ITemplateAssetReference)value).Address);
+            // Unity serializes a cleared address as "": both mean no asset
+            string address = ((ITemplateAssetReference)value).Address;
+            if (string.IsNullOrEmpty(address)) writer.WriteNull();
+            else writer.WriteValue(address);
         }
     }
 }

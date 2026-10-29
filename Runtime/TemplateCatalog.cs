@@ -108,7 +108,7 @@ namespace Kott.Configs
             {
                 throw new KeyNotFoundException(
                     $"No template for {value.GetType().Name}.{value} ({typeof(T).Name} ID " +
-                    $"'{FormatEnumId(typeof(T), value)}').");
+                    $"'{TemplateIdUtility.CreateEnumId(typeof(T), value)}').");
             }
 
             return (T)template;
@@ -150,7 +150,8 @@ namespace Kott.Configs
 
             foreach (Enum value in Enum.GetValues(lookup.EnumType))
             {
-                if (_templates.TryGetValue(FormatEnumId(templateType, value), out Template template) &&
+                if (_templates.TryGetValue(TemplateIdUtility.CreateEnumId(templateType, value),
+                        out Template template) &&
                     templateType.IsInstanceOfType(template))
                 {
                     lookup.Templates[value] = template;
@@ -158,13 +159,6 @@ namespace Kott.Configs
             }
 
             return lookup;
-        }
-
-        private static string FormatEnumId(Type templateType, Enum value)
-        {
-            string format = templateType.GetCustomAttribute<TemplateEnumAttribute>(false)?.IdFormat
-                            ?? TemplateIdUtility.GetGroupId(templateType) + TemplateIdUtility.Separator + "{0}";
-            return string.Format(format, value);
         }
 
         private sealed class EnumLookup

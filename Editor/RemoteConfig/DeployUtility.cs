@@ -1,43 +1,40 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Unity.Services.DeploymentApi.Editor;
 using UnityEditor;
-using UnityEngine;
 
 namespace Kott.Configs
 {
+    /// <summary>Deploys files through the Deployment window of the Unity Services Deployment package.</summary>
     public static class DeployUtility
     {
-        private class TempDeploymentWindowContainer : IDisposable
+        /// <summary>Deploys the files at <paramref name="paths" /> (asset paths) to the current environment.</summary>
+        public static async Task<DeploymentResult<IDeploymentItem>> DeployAsync(IReadOnlyList<string> paths)
         {
-            private EditorWindow _editorWindow;
-            private int _progressID;
-            public readonly IDeploymentWindow Window;
+            using TempDeploymentWindowContainer windowContainer = new();
+            return await windowContainer.Window.Deploy(paths);
+        }
+
+        private sealed class TempDeploymentWindowContainer : IDisposable
+        {
+            private readonly EditorWindow _editorWindow;
+            private readonly int _progressID;
 
             public TempDeploymentWindowContainer()
             {
-                Progress.Options progressOptions = Progress.Options.Indefinite;
-                _progressID = Progress.Start("Using deployment window", options: progressOptions);
+                _progressID = Progress.Start("Using deployment window", options: Progress.Options.Indefinite);
 
                 _editorWindow = Deployments.Instance.DeploymentWindow.OpenWindow();
                 Window = Deployments.Instance.DeploymentWindow;
             }
 
+            public IDeploymentWindow Window { get; }
+
             public void Dispose()
             {
                 _editorWindow.Close();
-
                 Progress.Remove(_progressID);
-            }
-        }
-
-        public static async void DeployAll()
-        {
-            using (TempDeploymentWindowContainer windowContainer = new())
-            {
-                List<IDeploymentItem> deploymentItems = windowContainer.Window.GetAllDeploymentItems();
-                DeploymentResult<IDeploymentItem> result = await windowContainer.Window.Deploy(deploymentItems);
-                Debug.Log($"Deployed={result.Deployed}");
             }
         }
     }
