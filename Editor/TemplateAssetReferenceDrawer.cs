@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Kott.Configs
 {
     [CustomPropertyDrawer(typeof(TemplateAssetReference<>))]
-    public class TemplateAssetReferenceDrawer : PropertyDrawer
+    internal class TemplateAssetReferenceDrawer : PropertyDrawer
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {

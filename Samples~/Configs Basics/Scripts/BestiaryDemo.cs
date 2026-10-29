@@ -137,7 +137,7 @@ namespace Kott.Configs.Basics
 
         private void LoadIcon(EnemyTemplate enemy, Image image)
         {
-            string address = ((ITemplateAssetReference)enemy.Icon).Address;
+            string address = enemy.Icon.Address;
             if (string.IsNullOrEmpty(address)) return;
 
             // until the sample is set up (see README), its sprites aren't addressable in your project: check
