@@ -4,7 +4,8 @@ using UnityEngine;
 
 namespace Kott.Configs
 {
-    public class ItemWindow : EditorWindow
+    /// <summary>One field of a template; arrays as a table with add, move and delete.</summary>
+    internal sealed class TemplateFieldWindow : EditorWindow
     {
         private class Column : EditorTableColumn
         {
@@ -55,11 +56,15 @@ namespace Kott.Configs
             _serializedObject = null;
         }
 
-        public void UpdateValues(string propertyPath, Template wrapper)
+        /// <summary>Opens a new window showing the field at <paramref name="propertyPath" /> of <paramref name="template" />.</summary>
+        public static void Open(string propertyPath, Template template)
         {
-            _propertyPath = propertyPath;
-            _template = wrapper;
-            Setup();
+            TemplateFieldWindow window = CreateWindow<TemplateFieldWindow>();
+            window.titleContent = new GUIContent($"{template.name} {propertyPath}");
+            window._propertyPath = propertyPath;
+            window._template = template;
+            window.Setup();
+            window.Show();
         }
 
         private void Setup()
@@ -367,12 +372,10 @@ namespace Kott.Configs
 
             if (button)
             {
-                ItemWindow itemWindow = CreateWindow<ItemWindow>();
                 string subPath = column.RelativePropertyPath != null
                     ? $"{_propertyPath}.Array.data[{row.ArrayIndex}].{column.RelativePropertyPath}"
                     : $"{_propertyPath}.Array.data[{row.ArrayIndex}]";
-                itemWindow.UpdateValues(subPath, _template);
-                itemWindow.Show();
+                Open(subPath, _template);
             }
         }
     }

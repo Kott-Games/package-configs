@@ -7,7 +7,11 @@ using UnityEngine;
 
 namespace Kott.Configs
 {
-    public class TableWindow : EditorWindow
+    /// <summary>
+    ///     Table of the templates of one config set, filtered by type: one row per template, one column per field
+    ///     the selected types share. A column header opens that field as its own table.
+    /// </summary>
+    internal sealed class TemplateBrowserWindow : EditorWindow
     {
         private class Column : EditorTableColumn
         {
@@ -18,15 +22,18 @@ namespace Kott.Configs
 
         private class Row : EditorTableRow
         {
-            public Template Wrapper;
+            public Template Template;
             public SerializedObject SerializedObject;
         }
+
+        [SerializeField]
+        private ConfigSet _set;
 
         [SerializeField]
         private string _propertyPath;
 
         [SerializeField]
-        private ItemFilter _filter;
+        private TemplateTypeFilter _filter;
 
         [SerializeField]
         private EditorTable<Column, Row> _table = new EditorTable<Column, Row>();
@@ -37,10 +44,19 @@ namespace Kott.Configs
         private SerializedObject _serializedObject;
 
         private bool _isSetup;
+        private Type[] _availableTypes = Array.Empty<Type>();
 
         private bool _stylesCached;
         private GUIContent _headerButtonLabel;
         private GUIStyle _headerButtonStyle;
+
+        /// <summary>Opens a new browser over the templates of <paramref name="set" />.</summary>
+        public static void Open(ConfigSet set)
+        {
+            TemplateBrowserWindow window = CreateWindow<TemplateBrowserWindow>();
+            window.UpdateValues(set, "", new TemplateTypeFilter());
+            window.Show();
+        }
 
         private void OnEnable()
         {
@@ -57,8 +73,9 @@ namespace Kott.Configs
             Cleanup();
         }
 
-        public void UpdateValues(string propertyPath, ItemFilter filter)
+        private void UpdateValues(ConfigSet set, string propertyPath, TemplateTypeFilter filter)
         {
+            _set = set;
             _propertyPath = propertyPath;
             _filter = filter;
             Setup();
@@ -68,10 +85,18 @@ namespace Kott.Configs
         {
             Cleanup();
 
+            if (!_set) return;
             if (_filter == null) return;
             if (_propertyPath == null) return;
 
-            Template[] templates = _filter.GetTemplates().ToArray();
+            titleContent = new GUIContent(string.IsNullOrEmpty(_propertyPath)
+                ? $"{_set.name} Templates"
+                : $"{_set.name} {_propertyPath}");
+
+            List<Template> setTemplates = ConfigPipeline.FindTemplates(_set);
+            _availableTypes = setTemplates.Select(template => template.GetType()).Distinct().ToArray();
+
+            Template[] templates = _filter.Filter(setTemplates).ToArray();
             if (templates.Length == 0) return;
 
             _table.Setup(TableDrawHeader, TableDrawCell);
@@ -87,7 +112,7 @@ namespace Kott.Configs
             {
                 _table.Rows.Add(new Row()
                 {
-                    Wrapper = templates[i],
+                    Template = templates[i],
                     SerializedObject = new SerializedObject(templates[i]),
                 });
             }
@@ -106,13 +131,12 @@ namespace Kott.Configs
 
             foreach (var row in _table.Rows)
             {
-                if (!templateTypes.Add(row.Wrapper.GetType()))
+                if (!templateTypes.Add(row.Template.GetType()))
                     continue;
 
                 SerializedProperty rootProperty = string.IsNullOrEmpty(_propertyPath)
                     ? row.SerializedObject.GetIterator()
                     : row.SerializedObject.FindProperty(_propertyPath);
-                var paths = ConfigGUI.GetVisibleProperties(rootProperty).Select(p => p.propertyPath);
 
                 if (propertyPaths == null)
                 {
@@ -155,6 +179,7 @@ namespace Kott.Configs
             _table.Rows.Clear();
 
             _isSetup = false;
+            _availableTypes = Array.Empty<Type>();
         }
 
         private void OnGUI()
@@ -166,19 +191,40 @@ namespace Kott.Configs
                 _headerButtonStyle = new GUIStyle(EditorStyles.iconButton);
             }
 
-            EditorGUILayout.LabelField("Property Path", _propertyPath, EditorStyles.boldLabel);
+            if (!_set || _filter == null)
+            {
+                EditorGUILayout.HelpBox("The config set is gone. Open the browser again from the config window.",
+                    MessageType.Info);
+                return;
+            }
+
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                using (new EditorGUI.DisabledScope(true))
+                {
+                    EditorGUILayout.ObjectField(_set, typeof(ConfigSet), false);
+                }
+
+                if (GUILayout.Button("Refresh", GUILayout.ExpandWidth(false))) Setup();
+            }
+
+            if (!string.IsNullOrEmpty(_propertyPath))
+            {
+                EditorGUILayout.LabelField("Property Path", _propertyPath, EditorStyles.boldLabel);
+            }
+
             GUILayout.Space(3.0f);
 
-            bool filterChanged = _filter.DrawGUILayout();
+            bool filterChanged = _filter.DrawGUILayout(_availableTypes);
             if (filterChanged)
             {
                 Setup();
-                return;
+                GUIUtility.ExitGUI();
             }
 
             if (!_isSetup)
             {
-                EditorGUILayout.HelpBox("Not ready.", MessageType.Info);
+                EditorGUILayout.HelpBox("No templates of the selected types in this config set.", MessageType.Info);
                 return;
             }
 
@@ -222,9 +268,9 @@ namespace Kott.Configs
 
             if (button)
             {
-                TableWindow tableWindow = CreateWindow<TableWindow>();
-                tableWindow.UpdateValues(column.PropertyPath, new ItemFilter(_filter));
-                tableWindow.Show();
+                TemplateBrowserWindow window = CreateWindow<TemplateBrowserWindow>();
+                window.UpdateValues(_set, column.PropertyPath, new TemplateTypeFilter(_filter));
+                window.Show();
             }
         }
 
@@ -245,9 +291,7 @@ namespace Kott.Configs
 
             if (button)
             {
-                ItemWindow itemWindow = CreateWindow<ItemWindow>();
-                itemWindow.UpdateValues(_propertyPath, row.Wrapper);
-                itemWindow.Show();
+                TemplateFieldWindow.Open(_propertyPath, row.Template);
             }
         }
 
@@ -260,9 +304,7 @@ namespace Kott.Configs
 
             if (button)
             {
-                ItemWindow itemWindow = CreateWindow<ItemWindow>();
-                itemWindow.UpdateValues(column.PropertyPath, row.Wrapper);
-                itemWindow.Show();
+                TemplateFieldWindow.Open(column.PropertyPath, row.Template);
             }
         }
     }

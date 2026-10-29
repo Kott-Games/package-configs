@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Kott.Configs
 {
-    public static class ConfigGUI
+    internal static class ConfigGUI
     {
         public static IEnumerable<SerializedProperty> GetVisibleProperties(SerializedProperty property)
         {
