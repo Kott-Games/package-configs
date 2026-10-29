@@ -7,55 +7,54 @@ using UnityEngine;
 
 namespace Kott.Configs
 {
+    /// <summary>Template type selection of the template browser; a selected type includes its subtypes.</summary>
     [Serializable]
-    public class ItemFilter
+    internal class TemplateTypeFilter
     {
         [SerializeField]
-        private List<string> _selectedTypeStrings = new List<string>();
+        private List<string> _selectedTypeStrings = new();
 
         [SerializeField]
-        private bool _configTypeSelectionExpanded;
+        private bool _expanded = true;
 
-        [SerializeField]
-        private string _selectedConfigTypesHeader;
+        private string _header;
 
-        public ItemFilter()
+        public TemplateTypeFilter()
         {
-            HandleChangedTypes();
         }
 
-        public ItemFilter(ItemFilter other)
+        public TemplateTypeFilter(TemplateTypeFilter other)
         {
             _selectedTypeStrings.AddRange(other._selectedTypeStrings);
-            HandleChangedTypes();
+            _expanded = false;
         }
 
-
-        public IEnumerable<Template> GetTemplates()
+        /// <summary>The templates that are instances of a selected type.</summary>
+        public IEnumerable<Template> Filter(IEnumerable<Template> templates)
         {
-            return _selectedTypeStrings
-                .Select(ts => Type.GetType(ts))
-                .SelectMany(t => ConfigEditorUtility.GetTemplatesWithType(t))
-                .Distinct();
+            List<Type> types = GetSelectedTypes().ToList();
+            return templates.Where(template => types.Any(type => type.IsInstanceOfType(template)));
         }
 
-
-        public bool DrawGUILayout()
+        /// <summary>Draws the type tree, limited to <paramref name="availableTypes" /> and their base types.</summary>
+        /// <returns>Whether the selection changed.</returns>
+        public bool DrawGUILayout(ICollection<Type> availableTypes)
         {
             bool typesChanged = false;
 
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
-            if (GUILayout.Button(_selectedConfigTypesHeader))
+            _header ??= GetSelectedTypes().Select(ConfigEditorUtility.GetTypeDisplayName).JoinString(" | ");
+            if (GUILayout.Button(_header.Length > 0 ? _header : "Select template types"))
             {
-                _configTypeSelectionExpanded = !_configTypeSelectionExpanded;
+                _expanded = !_expanded;
             }
 
-            if (_configTypeSelectionExpanded)
+            if (_expanded)
             {
-                HashSet<string> nextTypeStrings = new HashSet<string>(_selectedTypeStrings);
+                HashSet<string> nextTypeStrings = new(_selectedTypeStrings);
 
-                foreach ((Type type, int depth) in ConfigEditorUtility.GetTemplateTypeTree())
+                foreach ((Type type, int depth) in ConfigEditorUtility.GetTemplateTypeTree(availableTypes))
                 {
                     string typeString = type.AssemblyQualifiedName;
                     string displayName = ConfigEditorUtility.GetTypeDisplayName(type);
@@ -72,7 +71,6 @@ namespace Kott.Configs
                     if (GUI.Button(position, displayName, EditorStyles.helpBox))
                     {
                         typesChanged = true;
-                        bool changeDerived = Event.current.alt;
                         if (isSelected)
                         {
                             nextTypeStrings.Remove(typeString);
@@ -89,7 +87,7 @@ namespace Kott.Configs
                 if (typesChanged)
                 {
                     _selectedTypeStrings = nextTypeStrings.ToList();
-                    HandleChangedTypes();
+                    _header = null;
                 }
             }
 
@@ -98,12 +96,9 @@ namespace Kott.Configs
             return typesChanged;
         }
 
-        private void HandleChangedTypes()
+        private IEnumerable<Type> GetSelectedTypes()
         {
-            _selectedConfigTypesHeader = _selectedTypeStrings
-                .Select(ts => Type.GetType(ts))
-                .Select(t => ConfigEditorUtility.GetTypeDisplayName(t))
-                .JoinString(" | ");
+            return _selectedTypeStrings.Select(typeString => Type.GetType(typeString)).Where(type => type != null);
         }
     }
 }

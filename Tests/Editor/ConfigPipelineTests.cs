@@ -119,6 +119,22 @@ namespace Kott.Configs.Tests
         }
 
         [Test]
+        public void FindTemplates_SetFolder_ReturnsMainTemplateAssetsByPath()
+        {
+            ConfigSet set = CreateSet(SetFolder, "Set");
+            TestItemTemplate sword = CreateTemplate<TestItemTemplate>(SetFolder, "Sword");
+            CreateTemplate<TestWeaponTemplate>(SetFolder, "Bow");
+            CreateTemplate<TestItemTemplate>(Root, "Outside");
+            TestItemTemplate gem = ScriptableObject.CreateInstance<TestItemTemplate>();
+            gem.name = "Gem";
+            AssetDatabase.AddObjectToAsset(gem, sword);
+            AssetDatabase.SaveAssetIfDirty(sword);
+
+            Assert.That(ConfigPipeline.FindTemplates(set).Select(template => template.name),
+                Is.EqualTo(new[] { "Bow", "Sword" }));
+        }
+
+        [Test]
         public void EditorLoader_SetWithCurrentTemplates_LoadsThemAndUpdatesMapping()
         {
             ConfigSet set = CreateSet(SetFolder, "Set");

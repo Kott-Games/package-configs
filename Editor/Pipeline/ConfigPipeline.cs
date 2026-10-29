@@ -148,6 +148,20 @@ namespace Kott.Configs
                 .ToList();
         }
 
+        /// <summary>The template assets in the folders of <paramref name="set" />, ordered by path. Sub-assets are skipped.</summary>
+        public static List<Template> FindTemplates(ConfigSet set)
+        {
+            if (!set) throw new ArgumentNullException(nameof(set));
+
+            List<string> folders = set.GetFolderPaths();
+            if (folders.Count == 0) return new List<Template>();
+
+            return FindTemplatePaths(folders.ToArray())
+                .Select(AssetDatabase.LoadMainAssetAtPath)
+                .OfType<Template>()
+                .ToList();
+        }
+
         /// <summary>Logs <paramref name="issues" /> with their context.</summary>
         public static void LogIssues(IEnumerable<ConfigIssue> issues, ILogger logger = null)
         {
@@ -190,16 +204,6 @@ namespace Kott.Configs
                                ?? throw new InvalidOperationException(
                                    $"Config set '{set.name}' is not saved as an asset.");
             return $"{directory}/{set.name}{suffix}";
-        }
-
-        [MenuItem("Tools/Configs/Validate All", priority = 20)]
-        private static void ValidateAllMenu()
-        {
-            List<ConfigIssue> issues = ValidateAll();
-            LogIssues(issues);
-            int errors = issues.Count(issue => issue.Severity == ConfigIssueSeverity.Error);
-            Debug.Log($"[Configs] Validated {FindSets().Count} config sets: {errors} errors, " +
-                      $"{issues.Count - errors} warnings.");
         }
 
         [InitializeOnLoadMethod]
