@@ -10,7 +10,7 @@ namespace Kott.Configs
     ///     files (flat arrays of templates) in its folders. A template belongs to exactly one set, IDs are unique within
     ///     the set and references stay inside it. Push with <see cref="ConfigPipeline.Push" />.
     /// </summary>
-    [CreateAssetMenu(menuName = "Kott/Configs/Config Set", fileName = "ConfigSet", order = 0)]
+    [CreateAssetMenu(menuName = "Configs/Config Set", fileName = "ConfigSet", order = 0)]
     public class ConfigSet : ScriptableObject
     {
         [SerializeField]

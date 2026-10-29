@@ -20,8 +20,7 @@ namespace Kott.Configs
         private string _header;
 
         public TemplateTypeFilter()
-        {
-        }
+        { }
 
         public TemplateTypeFilter(TemplateTypeFilter other)
         {

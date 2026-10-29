@@ -67,7 +67,8 @@ namespace Kott.Configs
                 GUILayout.FlexibleSpace();
                 _showErrors = GUILayout.Toggle(_showErrors, Label(_errorIcon, errors.ToString()),
                     EditorStyles.toolbarButton);
-                _showWarnings = GUILayout.Toggle(_showWarnings, Label(_warningIcon, (_issues.Count - errors).ToString()),
+                _showWarnings = GUILayout.Toggle(_showWarnings,
+                    Label(_warningIcon, (_issues.Count - errors).ToString()),
                     EditorStyles.toolbarButton);
             }
 
