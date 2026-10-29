@@ -1,0 +1,20 @@
+{
+    "name": "Kott.Configs.Basics",
+    "rootNamespace": "Kott.Configs.Basics",
+    "references": [
+        "GUID:c2f76f0b13817514ba358184bce3ab0b",
+        "GUID:b0f31b71235c2cf4ba6fdc19f8bc7546",
+        "GUID:9e24947de15b9834991c9d8411ea37cf",
+        "GUID:84651a3751eca9349aac36a66bba901b",
+        "GUID:2bafac87e7f4b9b418d9448d219b01ab"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

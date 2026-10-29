@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1479fed20b65696bc57478b0dbaf93b, type: 3}
+  m_Name: Ogre
+  m_EditorClassIdentifier: Kott.Configs.Basics::Kott.Configs.Basics.BossTemplate
+  ID: Enemy+Ogre
+  DisplayName: Ogre
+  Health: 50
+  Damage: 6
+  Element: 0
+  Loot:
+  - _template: {fileID: 11400000, guid: 7cb658b61caf51ddaa1329bc7d145574, type: 2}
+  - _template: {fileID: 11400000, guid: 7cb658b61caf51ddaa1329bc7d145574, type: 2}
+  Icon:
+    _address: 
+    _asset: {fileID: 0}
+  Phases: 2
+  Minion:
+    _template: {fileID: 11400000, guid: e0da0ca5e2235172b8100fb8cda3683a, type: 2}

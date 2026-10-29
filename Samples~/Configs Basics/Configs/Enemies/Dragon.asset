@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1479fed20b65696bc57478b0dbaf93b, type: 3}
+  m_Name: Dragon
+  m_EditorClassIdentifier: Kott.Configs.Basics::Kott.Configs.Basics.BossTemplate
+  ID: Enemy+Dragon
+  DisplayName: Ember Dragon
+  Health: 120
+  Damage: 12
+  Element: 0
+  Loot:
+  - _template: {fileID: 11400000, guid: 8bde3be8d467529197bc188704c12fa9, type: 2}
+  - _template: {fileID: 11400000, guid: b55417422bb255d59603ff4d68ec2223, type: 2}
+  Icon:
+    _address: 
+    _asset: {fileID: 21300000, guid: 933524f8bf4356bf9310d5912d9c00c9, type: 3}
+  Phases: 3
+  Minion:
+    _template: {fileID: 11400000, guid: 4653c401b95f52c5b8fd3c39a307f396, type: 2}

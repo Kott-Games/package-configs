@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04d71d15cde04c3c9dc76b3d63616359, type: 3}
+  m_Name: ConfigsBasicsTypeMapping
+  m_EditorClassIdentifier: Kott.Configs::Kott.Configs.ConfigTypeMapping
+  _typeGroups:
+  - _typeIdentifier: Boss
+    _typeString: Kott.Configs.Basics.BossTemplate, Kott.Configs.Basics, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    _baseTypeStrings:
+    - Kott.Configs.Basics.BossTemplate, Kott.Configs.Basics, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    - Kott.Configs.Basics.EnemyTemplate, Kott.Configs.Basics, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    - Kott.Configs.Template, Kott.Configs, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - _typeIdentifier: Enemy
+    _typeString: Kott.Configs.Basics.EnemyTemplate, Kott.Configs.Basics, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    _baseTypeStrings:
+    - Kott.Configs.Basics.EnemyTemplate, Kott.Configs.Basics, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    - Kott.Configs.Template, Kott.Configs, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - _typeIdentifier: Element
+    _typeString: Kott.Configs.Basics.ElementTemplate, Kott.Configs.Basics, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    _baseTypeStrings:
+    - Kott.Configs.Basics.ElementTemplate, Kott.Configs.Basics, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    - Kott.Configs.Template, Kott.Configs, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - _typeIdentifier: Item
+    _typeString: Kott.Configs.Basics.ItemTemplate, Kott.Configs.Basics, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    _baseTypeStrings:
+    - Kott.Configs.Basics.ItemTemplate, Kott.Configs.Basics, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    - Kott.Configs.Template, Kott.Configs, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
