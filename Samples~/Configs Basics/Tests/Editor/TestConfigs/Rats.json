@@ -1,0 +1,23 @@
+[
+  {
+    "Type": "Enemy",
+    "ID": "Enemy+Rat",
+    "DisplayName": "Rat",
+    "Health": 4,
+    "Damage": 1,
+    "Element": "Poison",
+    "Loot": [
+      "Item+Coin"
+    ]
+  },
+  {
+    "Type": "Boss",
+    "ID": "Enemy+RatKing",
+    "DisplayName": "Rat King",
+    "Health": 30,
+    "Damage": 3,
+    "Element": "Poison",
+    "Phases": 3,
+    "Minion": "Enemy+Rat"
+  }
+]

@@ -1,0 +1,139 @@
+{
+  "formatVersion": 1,
+  "templates": [
+    {
+      "Type": "Element",
+      "ID": "Element+Fire",
+      "DisplayName": "Fire",
+      "Color": {
+        "r": 1,
+        "g": 0.45,
+        "b": 0.2,
+        "a": 1.0
+      },
+      "Weakness": 1
+    },
+    {
+      "Type": "Element",
+      "ID": "Element+Ice",
+      "DisplayName": "Ice",
+      "Color": {
+        "r": 0.45,
+        "g": 0.8,
+        "b": 1,
+        "a": 1.0
+      },
+      "Weakness": 0
+    },
+    {
+      "Type": "Element",
+      "ID": "Element+Poison",
+      "DisplayName": "Poison",
+      "Color": {
+        "r": 0.55,
+        "g": 0.85,
+        "b": 0.3,
+        "a": 1.0
+      },
+      "Weakness": 0
+    },
+    {
+      "Type": "Enemy",
+      "ID": "Enemy+Bat",
+      "DisplayName": "Ice Bat",
+      "Health": 8,
+      "Damage": 2,
+      "Element": 1,
+      "Loot": [
+        "Item+Fang"
+      ],
+      "Icon": null
+    },
+    {
+      "Type": "Boss",
+      "ID": "Enemy+Dragon",
+      "DisplayName": "Ember Dragon",
+      "Health": 120,
+      "Damage": 12,
+      "Element": 0,
+      "Loot": [
+        "Item+DragonScale",
+        "Item+Coin"
+      ],
+      "Icon": null,
+      "Phases": 3,
+      "Minion": "Enemy+Wolf"
+    },
+    {
+      "Type": "Enemy",
+      "ID": "Enemy+Goblin",
+      "DisplayName": "Goblin",
+      "Health": 12,
+      "Damage": 3,
+      "Element": 2,
+      "Loot": [
+        "Item+Coin",
+        "Item+Coin"
+      ],
+      "Icon": null
+    },
+    {
+      "Type": "Enemy",
+      "ID": "Enemy+Rat",
+      "DisplayName": "Sewer Rat",
+      "Health": 5,
+      "Damage": 1,
+      "Element": 2,
+      "Loot": [
+        "Item+Coin"
+      ],
+      "Icon": null
+    },
+    {
+      "Type": "Boss",
+      "ID": "Enemy+RatKing",
+      "DisplayName": "Rat King",
+      "Health": 60,
+      "Damage": 5,
+      "Element": 2,
+      "Loot": [
+        "Item+Coin",
+        "Item+Coin",
+        "Item+Coin"
+      ],
+      "Icon": null,
+      "Phases": 2,
+      "Minion": "Enemy+Rat"
+    },
+    {
+      "Type": "Enemy",
+      "ID": "Enemy+Wolf",
+      "DisplayName": "Frost Wolf",
+      "Health": 20,
+      "Damage": 4,
+      "Element": 1,
+      "Loot": [
+        "Item+Fang"
+      ],
+      "Icon": null
+    },
+    {
+      "Type": "Item",
+      "ID": "Item+Coin",
+      "DisplayName": "Gold Coin",
+      "Value": 1
+    },
+    {
+      "Type": "Item",
+      "ID": "Item+DragonScale",
+      "DisplayName": "Dragon Scale",
+      "Value": 50
+    },
+    {
+      "Type": "Item",
+      "ID": "Item+Fang",
+      "DisplayName": "Wolf Fang",
+      "Value": 5
+    }
+  ]
+}
