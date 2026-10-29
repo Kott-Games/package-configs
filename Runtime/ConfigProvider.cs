@@ -70,8 +70,6 @@ namespace Kott.Configs
             List<ConfigPayload> payloads = new();
             try
             {
-                Dictionary<string, Type> types = _typeMapping.ResolveTypes();
-
                 SubProgress subProgress = new(progress);
                 for (int i = 0; i < _loaders.Count; i++)
                 {
@@ -83,6 +81,8 @@ namespace Kott.Configs
                     if (payload != null) payloads.Add(payload);
                 }
 
+                // after loading: the editor loader may update the mapping
+                Dictionary<string, Type> types = _typeMapping.ResolveTypes();
                 List<Template> templates = Merge(payloads);
                 ResolveReferences(payloads, templates.ToDictionary(template => template.ID));
 

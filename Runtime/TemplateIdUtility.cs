@@ -26,6 +26,20 @@ namespace Kott.Configs
         }
 
         /// <summary>
+        ///     The ID of the template that <paramref name="value" /> maps to for <paramref name="templateType" />:
+        ///     <see cref="TemplateEnumAttribute.IdFormat" />, or <c>"&lt;group ID&gt;+&lt;value name&gt;"</c>.
+        /// </summary>
+        public static string CreateEnumId(Type templateType, Enum value)
+        {
+            if (templateType == null) throw new ArgumentNullException(nameof(templateType));
+            if (value == null) throw new ArgumentNullException(nameof(value));
+
+            string format = templateType.GetCustomAttribute<TemplateEnumAttribute>(false)?.IdFormat
+                            ?? GetGroupId(templateType) + Separator + "{0}";
+            return string.Format(format, value);
+        }
+
+        /// <summary>
         ///     The identifier of a template type in payloads: <see cref="TemplateTypeAttribute.Identifier" />, or the
         ///     class name without "Template".
         /// </summary>

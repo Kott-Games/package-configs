@@ -1,5 +1,5 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -7,56 +7,37 @@ namespace Kott.Configs
 {
     public class MainConfigWindow : EditorWindow
     {
+        [SerializeField]
+        private ConfigSet _set;
+
         [MenuItem("Tools/Configs/Open Window", priority = 0)]
         private static void Open() => GetWindow<MainConfigWindow>("Config Tool", true).Show();
 
         private void OnGUI()
         {
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Update")) UpdateConfigs();
-            if (GUILayout.Button("Export")) ExportConfigs();
-            if (GUILayout.Button("Copy to Clipboard")) CopyConfigToClipboard();
-            EditorGUILayout.EndHorizontal();
+            List<ConfigSet> sets = ConfigPipeline.FindSets();
+            if (!_set || !sets.Contains(_set)) _set = sets.FirstOrDefault();
 
-            if (GUILayout.Button("Update, Export and Copy to Clipboard")) UpdateExportCopyConfigToClipboard();
+            if (sets.Count == 0)
+            {
+                EditorGUILayout.HelpBox("No config set in the project. Create one with Create > Kott > Configs > " +
+                                        "Config Set.", MessageType.Info);
+            }
+            else
+            {
+                int index = EditorGUILayout.Popup("Config Set", sets.IndexOf(_set),
+                    sets.Select(set => set.name).ToArray());
+                _set = sets[index];
+
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button("Validate")) ConfigSetEditor.Validate(_set);
+                if (GUILayout.Button("Push")) ConfigPipeline.Push(_set);
+                EditorGUILayout.EndHorizontal();
+            }
 
             EditorGUILayout.Space();
 
             if (GUILayout.Button("Open Table")) OpenTable();
-        }
-
-        private static void UpdateConfigs()
-        {
-            Debug.Log($"[Config] Update");
-            ConfigStructureUtility.UpdateConfigStructure();
-        }
-
-        private static void ExportConfigs()
-        {
-            Debug.Log($"[Config] Export");
-
-            ConfigTypeMapping configTypeMapping = ConfigEditorUtility.GetConfigDataCache<ConfigTypeMapping>();
-            RuntimeConfigData runtimeConfigData = ConfigEditorUtility.GetConfigDataCache<RuntimeConfigData>();
-
-            JObject payload = ConfigSerialization.Serialize(configTypeMapping, runtimeConfigData.Templates);
-            JObject entries = new(new JProperty(ConfigVersionUtility.GetTemplateDataKey(), payload));
-
-            RCJsonAPI.WriteToConfigAsset("json_config", entries);
-        }
-
-        private static void UpdateExportCopyConfigToClipboard()
-        {
-            UpdateConfigs();
-            ExportConfigs();
-            CopyConfigToClipboard();
-        }
-
-        private static void CopyConfigToClipboard()
-        {
-            Debug.Log($"[Config] Copy to Clipboard");
-            JObject entries = RCJsonAPI.ReadFromConfigAsset("json_config");
-            string payload = entries.ToString(Formatting.None);
-            GUIUtility.systemCopyBuffer = payload;
         }
 
         private static void OpenTable()

@@ -2,6 +2,8 @@
     "name": "Kott.Configs.RemoteConfig.Editor",
     "rootNamespace": "Kott.Configs",
     "references": [
+        "GUID:c2f76f0b13817514ba358184bce3ab0b",
+        "GUID:adf76536225fcdf4cb2226edea5cb2b6",
         "GUID:0b0cac33281734fd7af5a448fd9969ba",
         "GUID:3e87d69835e5b460e8b407530adf9fe0",
         "GUID:92ca58cb8e483fd4e8b09ec3047180ba",

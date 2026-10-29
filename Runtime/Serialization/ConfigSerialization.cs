@@ -71,7 +71,13 @@ namespace Kott.Configs
 
             Dictionary<Type, string> identifiers = typeMapping.ResolveTypes()
                 .ToDictionary(pair => pair.Value, pair => pair.Key);
+            return Serialize(identifiers, templates, $"the type mapping '{typeMapping.name}'");
+        }
 
+        /// <summary>Writes <paramref name="templates" /> with the given type identifiers.</summary>
+        internal static JObject Serialize(IReadOnlyDictionary<Type, string> identifiers, IEnumerable<Template> templates,
+            string mappingName)
+        {
             JsonSerializerSettings settings = CreateSerializerSettings();
             settings.Converters.Add(new TemplateReferenceConverter());
             JsonSerializer serializer = JsonSerializer.CreateDefault(settings);
@@ -83,7 +89,7 @@ namespace Kott.Configs
                 if (!identifiers.TryGetValue(type, out string identifier))
                 {
                     throw new ConfigException(
-                        $"Template '{template.ID}': type {type.FullName} is not in the type mapping '{typeMapping.name}'.");
+                        $"Template '{template.ID}': type {type.FullName} is not in {mappingName}.");
                 }
 
                 JObject jTemplate = JObject.FromObject(template, serializer);
@@ -130,12 +136,7 @@ namespace Kott.Configs
             if (payload == null) throw new ArgumentNullException(nameof(payload));
 
             JArray jTemplates = GetTemplates(payload);
-            Dictionary<string, Type> types = typeMapping.ResolveTypes();
-
-            JsonSerializerSettings settings = CreateSerializerSettings();
-            TemplateReferenceConverter referenceConverter = new();
-            settings.Converters.Add(referenceConverter);
-            JsonSerializer serializer = JsonSerializer.CreateDefault(settings);
+            TemplateReader reader = new(typeMapping.ResolveTypes());
 
             List<Template> templates = new();
             HashSet<string> ids = new();
@@ -143,7 +144,7 @@ namespace Kott.Configs
             {
                 for (int i = 0; i < jTemplates.Count; i++)
                 {
-                    Template template = ReadTemplate(jTemplates[i], i, types, serializer, referenceConverter);
+                    Template template = reader.Read(jTemplates[i], i);
                     templates.Add(template);
                     if (!ids.Add(template.ID))
                     {
@@ -161,10 +162,10 @@ namespace Kott.Configs
                 throw;
             }
 
-            return new ConfigPayload(templates, referenceConverter.References);
+            return new ConfigPayload(templates, reader.References);
         }
 
-        private static JArray GetTemplates(JToken payload)
+        internal static JArray GetTemplates(JToken payload)
         {
             switch (payload)
             {
@@ -195,54 +196,6 @@ namespace Kott.Configs
                 default:
                     throw new ConfigException($"Payload must be a JSON object or array, got {payload.Type}.");
             }
-        }
-
-        private static Template ReadTemplate(JToken token, int index, Dictionary<string, Type> types,
-            JsonSerializer serializer, TemplateReferenceConverter referenceConverter)
-        {
-            if (token is not JObject jTemplate)
-            {
-                throw new ConfigException($"Template entry #{index} is not a JSON object ({token.Type}).");
-            }
-
-            string id = (jTemplate[IdProperty] as JValue)?.Value as string;
-            if (string.IsNullOrEmpty(id))
-            {
-                throw new ConfigException($"Template entry #{index} has no '{IdProperty}'.");
-            }
-
-            string identifier = (jTemplate[TypeProperty] as JValue)?.Value as string;
-            if (identifier == null)
-            {
-                throw new ConfigException($"Template '{id}' has no '{TypeProperty}'.");
-            }
-
-            if (!types.TryGetValue(identifier, out Type type))
-            {
-                throw new ConfigException(
-                    $"Template '{id}': unknown type '{identifier}'. Known types: {string.Join(", ", types.Keys)}. " +
-                    "Was the type renamed? Pin its identifier with [TemplateType].");
-            }
-
-            if (type.IsAbstract)
-            {
-                throw new ConfigException($"Template '{id}': type '{identifier}' ({type.FullName}) is abstract.");
-            }
-
-            Template template = (Template)ScriptableObject.CreateInstance(type);
-            template.name = id;
-            referenceConverter.Owner = template;
-            try
-            {
-                serializer.Populate(jTemplate.CreateReader(), template);
-            }
-            catch (JsonException exception)
-            {
-                ConfigObjectUtility.Destroy(template);
-                throw new ConfigException($"Template '{id}' ({identifier}): {exception.Message}", exception);
-            }
-
-            return template;
         }
     }
 }

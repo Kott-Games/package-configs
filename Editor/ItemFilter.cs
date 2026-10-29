@@ -55,21 +55,16 @@ namespace Kott.Configs
             {
                 HashSet<string> nextTypeStrings = new HashSet<string>(_selectedTypeStrings);
 
-                ConfigStructure configStructure = ConfigEditorUtility.GetConfigDataCache<ConfigStructure>();
-                foreach (var group in configStructure.Groups)
+                foreach ((Type type, int depth) in ConfigEditorUtility.GetTemplateTypeTree())
                 {
-                    Type type = Type.GetType(group.TypeString);
-                    if (type.IsInterface)
-                        continue;
-
-                    int depth = group.BaseTypeStrings.Count;
+                    string typeString = type.AssemblyQualifiedName;
                     string displayName = ConfigEditorUtility.GetTypeDisplayName(type);
 
                     Rect position = EditorGUILayout.GetControlRect(false);
                     position.x += depth * 20.0f;
                     position.width -= depth * 20.0f;
 
-                    bool isSelected = nextTypeStrings.Contains(group.TypeString);
+                    bool isSelected = nextTypeStrings.Contains(typeString);
 
                     Color backgroundColor = GUI.backgroundColor;
                     GUI.backgroundColor = isSelected ? Color.green : Color.red;
@@ -80,11 +75,11 @@ namespace Kott.Configs
                         bool changeDerived = Event.current.alt;
                         if (isSelected)
                         {
-                            nextTypeStrings.Remove(group.TypeString);
+                            nextTypeStrings.Remove(typeString);
                         }
                         else
                         {
-                            nextTypeStrings.Add(group.TypeString);
+                            nextTypeStrings.Add(typeString);
                         }
                     }
 
