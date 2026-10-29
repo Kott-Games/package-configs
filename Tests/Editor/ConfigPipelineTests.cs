@@ -63,9 +63,11 @@ namespace Kott.Configs.Tests
             TestItemTemplate gem = ScriptableObject.CreateInstance<TestItemTemplate>();
             gem.name = "Gem";
             AssetDatabase.AddObjectToAsset(gem, sword);
+            AssetDatabase.SaveAssetIfDirty(sword);
 
             ConfigBuildResult result = ConfigPipeline.Build(set);
 
+            Assert.That(result.Issues, Has.Count.EqualTo(1), string.Join("\n", result.Issues));
             Assert.That(result.Issues.Single().Message, Does.Contain("'Gem' is a sub-asset"));
         }
 

@@ -107,6 +107,18 @@ namespace Kott.Configs.Tests
             Assert.That(payload.Templates[1], Is.TypeOf<TestItemTemplate>());
         }
 
+        [TestCase(null)]
+        [TestCase("")]
+        public void Serialize_AssetReferenceWithoutAddress_WritesNull(string address)
+        {
+            TestWeaponTemplate weapon = Create<TestWeaponTemplate>("TestWeapon+Bow");
+            ((ITemplateAssetReference)weapon.Icon).Address = address;
+
+            JObject jWeapon = (JObject)ConfigSerialization.Serialize(_mapping, new[] { weapon })["templates"][0];
+
+            Assert.That(jWeapon["Icon"].Type, Is.EqualTo(JTokenType.Null));
+        }
+
         [Test]
         public void Serialize_DefaultValueOverInitializer_WritesValue()
         {
