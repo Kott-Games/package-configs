@@ -128,7 +128,8 @@ namespace Kott.Configs.Tests
 
             try
             {
-                using ConfigProvider provider = new(mapping, new ConfigLoader[] { new EditorLoader { ConfigSet = set } });
+                using ConfigProvider provider = new(mapping,
+                    new ConfigLoader[] { new EditorLoader { ConfigSet = set } });
                 provider.LoadAsync().GetAwaiter().GetResult();
 
                 Assert.That(provider.GetTemplate<TestWeaponTemplate>("TestWeaponTemplate+Bow").Range, Is.EqualTo(4f));

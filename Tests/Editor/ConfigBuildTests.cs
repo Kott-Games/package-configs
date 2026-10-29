@@ -84,8 +84,10 @@ namespace Kott.Configs.Tests
             ConfigBuildResult result = Run(new[] { a, b });
 
             Assert.That(result.Issues, Is.Empty);
-            Assert.That(Entry(result, "TestItemTemplate+A")["Upgrade"].Value<string>(), Is.EqualTo("TestItemTemplate+B"));
-            Assert.That(Entry(result, "TestItemTemplate+B")["Upgrade"].Value<string>(), Is.EqualTo("TestItemTemplate+A"));
+            Assert.That(Entry(result, "TestItemTemplate+A")["Upgrade"].Value<string>(),
+                Is.EqualTo("TestItemTemplate+B"));
+            Assert.That(Entry(result, "TestItemTemplate+B")["Upgrade"].Value<string>(),
+                Is.EqualTo("TestItemTemplate+A"));
         }
 
         [Test]
@@ -116,7 +118,8 @@ namespace Kott.Configs.Tests
         [Test]
         public void Run_JsonObjectInsteadOfArray_ReportsError()
         {
-            JsonTemplateFile file = new("Assets/Payload.json", TestPayloads.Payload(TestPayloads.Item("TestItemTemplate+A")));
+            JsonTemplateFile file = new("Assets/Payload.json",
+                TestPayloads.Payload(TestPayloads.Item("TestItemTemplate+A")));
 
             ConfigIssue error = SingleError(Run(new Template[0], file));
 
@@ -174,7 +177,8 @@ namespace Kott.Configs.Tests
             ConfigIssue error = SingleError(Run(new Template[0], file));
 
             Assert.That(error.Message,
-                Does.Contain("TestItemTemplate+A").And.Contain("'TestItemTemplate+Gone', which is not in this config set"));
+                Does.Contain("TestItemTemplate+A").And
+                    .Contain("'TestItemTemplate+Gone', which is not in this config set"));
         }
 
         [Test]
@@ -249,7 +253,8 @@ namespace Kott.Configs.Tests
 
             Assert.That(result.HasErrors, Is.False);
             Assert.That(result.Payload, Is.Not.Null);
-            Assert.That(result.Issues.Single().Message, Does.Contain("TestStat.Mana").And.Contain("TestStatTemplate+Mana"));
+            Assert.That(result.Issues.Single().Message,
+                Does.Contain("TestStat.Mana").And.Contain("TestStatTemplate+Mana"));
         }
 
         [Test]
@@ -260,7 +265,8 @@ namespace Kott.Configs.Tests
                 Create<TestPinnedTemplate>("A"), Create<TestPinnedTwinTemplate>("B"),
             });
 
-            Assert.That(SingleError(result).Message, Does.Contain("'Pinned'").And.Contain(nameof(TestPinnedTwinTemplate)));
+            Assert.That(SingleError(result).Message,
+                Does.Contain("'Pinned'").And.Contain(nameof(TestPinnedTwinTemplate)));
         }
 
         [Test]
@@ -268,15 +274,18 @@ namespace Kott.Configs.Tests
         {
             TestItemTemplate a = Create<TestItemTemplate>("A");
             TestWeaponTemplate b = Create<TestWeaponTemplate>("B");
-            JsonTemplateFile file = Json(TestPayloads.Item("TestItemTemplate+C"), TestPayloads.Item("TestItemTemplate+D"));
-            JsonTemplateFile reversed = Json(TestPayloads.Item("TestItemTemplate+D"), TestPayloads.Item("TestItemTemplate+C"));
+            JsonTemplateFile file = Json(TestPayloads.Item("TestItemTemplate+C"),
+                TestPayloads.Item("TestItemTemplate+D"));
+            JsonTemplateFile reversed = Json(TestPayloads.Item("TestItemTemplate+D"),
+                TestPayloads.Item("TestItemTemplate+C"));
 
             string first = Run(new Template[] { a, b }, file).Payload.ToString();
             string second = Run(new Template[] { b, a }, reversed).Payload.ToString();
 
             Assert.That(second, Is.EqualTo(first));
             Assert.That(Ids(Run(new Template[] { b, a }, file)),
-                Is.EqualTo(new[] { "TestItemTemplate+A", "TestItemTemplate+C", "TestItemTemplate+D", "TestWeaponTemplate+B" }));
+                Is.EqualTo(new[]
+                    { "TestItemTemplate+A", "TestItemTemplate+C", "TestItemTemplate+D", "TestWeaponTemplate+B" }));
         }
 
         [Test]
@@ -292,7 +301,8 @@ namespace Kott.Configs.Tests
             ConfigPayload payload = ConfigSerialization.Deserialize(mapping, result.Payload);
             _objects.AddRange(payload.Templates);
 
-            Assert.That(result.TemplateTypes, Is.EqualTo(new[] { typeof(TestItemTemplate), typeof(TestWeaponTemplate) }));
+            Assert.That(result.TemplateTypes,
+                Is.EqualTo(new[] { typeof(TestItemTemplate), typeof(TestWeaponTemplate) }));
             Assert.That(payload.Templates.Select(template => template.ID),
                 Is.EqualTo(new[] { "TestItemTemplate+Arrow", "TestWeaponTemplate+Bow" }));
             Assert.That(((TestWeaponTemplate)payload.Templates[1]).Cooldown, Is.EqualTo(0f));

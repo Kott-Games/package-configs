@@ -106,7 +106,8 @@ namespace Kott.Configs
         /// <param name="jsonFiles">JSON template files of the set.</param>
         /// <param name="addresses">Resolves addresses of asset references.</param>
         /// <param name="templateTypes">Template types JSON entries may use. Default: all in the project.</param>
-        public static ConfigBuildResult Run(IEnumerable<Template> assetTemplates, IEnumerable<JsonTemplateFile> jsonFiles,
+        public static ConfigBuildResult Run(IEnumerable<Template> assetTemplates,
+            IEnumerable<JsonTemplateFile> jsonFiles,
             IAssetAddressResolver addresses, IEnumerable<Type> templateTypes = null)
         {
             templateTypes ??= TypeCache.GetTypesDerivedFrom<Template>().Where(type => !type.ContainsGenericParameters);
@@ -207,8 +208,9 @@ namespace Kott.Configs
             if (!target || _assetTemplates.Contains(target)) return;
 
             string targetPath = AssetDatabase.GetAssetPath(target);
-            Error($"Template '{owner.ID}' references '{(string.IsNullOrEmpty(targetPath) ? target.name : targetPath)}' " +
-                  $"({path}), which is not in this config set. References must stay inside the set.", owner);
+            Error(
+                $"Template '{owner.ID}' references '{(string.IsNullOrEmpty(targetPath) ? target.name : targetPath)}' " +
+                $"({path}), which is not in this config set. References must stay inside the set.", owner);
         }
 
         private void UpdateAddress(Template owner, ITemplateAssetReference reference, string path)
@@ -296,7 +298,8 @@ namespace Kott.Configs
             string id = entry.Template.ID;
             if (_entries.TryGetValue(id, out Entry existing))
             {
-                Error($"Duplicate template ID '{id}': {existing.Source} and {entry.Source}.", entry.Context, entry.Line);
+                Error($"Duplicate template ID '{id}': {existing.Source} and {entry.Source}.", entry.Context,
+                    entry.Line);
                 return;
             }
 

@@ -75,7 +75,8 @@ namespace Kott.Configs
         }
 
         /// <summary>Writes <paramref name="templates" /> with the given type identifiers.</summary>
-        internal static JObject Serialize(IReadOnlyDictionary<Type, string> identifiers, IEnumerable<Template> templates,
+        internal static JObject Serialize(IReadOnlyDictionary<Type, string> identifiers,
+            IEnumerable<Template> templates,
             string mappingName)
         {
             JsonSerializerSettings settings = CreateSerializerSettings();

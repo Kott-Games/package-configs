@@ -41,7 +41,8 @@ namespace Kott.Configs.Tests
         [Test]
         public void EffectiveKey_NoKey_IsVersionedKeyOfLoader()
         {
-            Assert.That(new RemoteConfigPublishTarget().EffectiveKey, Is.EqualTo(ConfigVersionUtility.GetTemplateDataKey()));
+            Assert.That(new RemoteConfigPublishTarget().EffectiveKey,
+                Is.EqualTo(ConfigVersionUtility.GetTemplateDataKey()));
         }
     }
 }

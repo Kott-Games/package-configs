@@ -187,7 +187,8 @@ namespace Kott.Configs
         public static string GetDefaultOutputPath(ConfigSet set, string suffix)
         {
             string directory = set.GetDirectory()
-                               ?? throw new InvalidOperationException($"Config set '{set.name}' is not saved as an asset.");
+                               ?? throw new InvalidOperationException(
+                                   $"Config set '{set.name}' is not saved as an asset.");
             return $"{directory}/{set.name}{suffix}";
         }
 
@@ -286,7 +287,9 @@ namespace Kott.Configs
         private static IEnumerable<string> FindTemplatePaths(string[] folders)
         {
             string filter = $"t:{typeof(Template).FullName}";
-            string[] guids = folders == null ? AssetDatabase.FindAssets(filter) : AssetDatabase.FindAssets(filter, folders);
+            string[] guids = folders == null
+                ? AssetDatabase.FindAssets(filter)
+                : AssetDatabase.FindAssets(filter, folders);
             return guids.Distinct().Select(AssetDatabase.GUIDToAssetPath).OrderBy(path => path, StringComparer.Ordinal);
         }
 
@@ -302,7 +305,8 @@ namespace Kott.Configs
 
             foreach (string path in paths)
             {
-                yield return new JsonTemplateFile(path, File.ReadAllText(path), AssetDatabase.LoadMainAssetAtPath(path));
+                yield return new JsonTemplateFile(path, File.ReadAllText(path),
+                    AssetDatabase.LoadMainAssetAtPath(path));
             }
         }
 

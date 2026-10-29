@@ -150,7 +150,8 @@ namespace Kott.Configs
 
             foreach (Enum value in Enum.GetValues(lookup.EnumType))
             {
-                if (_templates.TryGetValue(TemplateIdUtility.CreateEnumId(templateType, value), out Template template) &&
+                if (_templates.TryGetValue(TemplateIdUtility.CreateEnumId(templateType, value),
+                        out Template template) &&
                     templateType.IsInstanceOfType(template))
                 {
                     lookup.Templates[value] = template;

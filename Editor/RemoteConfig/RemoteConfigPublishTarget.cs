@@ -98,7 +98,8 @@ namespace Kott.Configs
             file["$schema"] ??= Schema;
             if (file["entries"] is not JObject entries)
             {
-                if (file["entries"] != null) throw new ConfigException("The Remote Config file's 'entries' is no object.");
+                if (file["entries"] != null)
+                    throw new ConfigException("The Remote Config file's 'entries' is no object.");
                 entries = new JObject();
                 file["entries"] = entries;
             }
